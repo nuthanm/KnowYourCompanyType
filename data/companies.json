@@ -1,6 +1,6 @@
 {
   "dataYear": 2026,
-  "catalogUpdated": "2026-07-24",
+  "catalogUpdated": "2026-07-26",
   "disclaimer": "Profiles reflect publicly available information for the stated year. Company details change — always verify on official sites before applying.",
   "companies": [
     {
@@ -8719,6 +8719,114 @@
         {
           "label": "Careers",
           "url": "https://jmangroup.com/careers/"
+        }
+      ]
+    },
+    {
+      "slug": "tiger-analytics",
+      "name": "Tiger Analytics",
+      "category": "service",
+      "tagline": "AI and analytics consulting for Fortune 1000 enterprises",
+      "description": "Tiger Analytics is a global AI and analytics consulting firm that helps Fortune 1000 companies strategize and operationalize data- and AI-led transformation programs for value at scale.",
+      "website": "https://www.tigeranalytics.com",
+      "founded": "2011",
+      "hq": "Santa Clara, USA",
+      "officeCities": [
+        "Chennai",
+        "Bengaluru",
+        "Hyderabad"
+      ],
+      "officeCountries": [
+        "United States",
+        "India",
+        "Canada",
+        "United Kingdom",
+        "Spain",
+        "Netherlands",
+        "Singapore",
+        "Malaysia",
+        "Philippines",
+        "Australia"
+      ],
+      "totalOfficeLocations": "14 offices",
+      "locationsUrl": "https://www.tigeranalytics.com/contact-us/",
+      "contactUrl": "https://www.tigeranalytics.com/contact-us/",
+      "headcountGlobal": "7,000+",
+      "headcountNote": "Over 7,000 technologists and consultants globally per careers openings page; India (Chennai, Bengaluru, Hyderabad) is a major delivery base — company does not publish a separate India headcount",
+      "domains": [
+        "AI & Analytics",
+        "Consulting",
+        "Data Engineering"
+      ],
+      "tags": [
+        "MNC",
+        "Global delivery",
+        "Private company"
+      ],
+      "products": [
+        "TigerML",
+        "Tiger Blueprints",
+        "Tiger DataSphere",
+        "Tiger AI Hub",
+        "Insights Pro",
+        "ForecastPro"
+      ],
+      "services": [
+        "Strategy & Advisory",
+        "Data modernization & engineering",
+        "Data science & AI engineering",
+        "MLOps & business intelligence",
+        "Application engineering"
+      ],
+      "onsitePolicy": "Flexible work arrangements and remote options noted on careers culture pages — verify by role on careers page",
+      "careersUrl": "https://www.tigeranalytics.com/about-us/current-openings/",
+      "linkedin": "https://www.linkedin.com/company/tiger-analytics",
+      "twitter": "https://x.com/tigeranalytics",
+      "leadership": [
+        {
+          "name": "Mahesh Kumar",
+          "role": "Founder & Chief Executive Officer"
+        },
+        {
+          "name": "Pradeep Gulipalli",
+          "role": "Co-founder & Chief Executive - India"
+        },
+        {
+          "name": "Pooja Agarwal",
+          "role": "Co-founder & Head of Business Operations"
+        }
+      ],
+      "vision": "Providing certainty for a better tomorrow — helping customers navigate uncertainty and move forward decisively with AI and analytics.",
+      "lastVerified": "2026-07-26",
+      "verificationStatus": "verified",
+      "sources": [
+        {
+          "label": "About page",
+          "url": "https://www.tigeranalytics.com/about-us/"
+        },
+        {
+          "label": "Our Story (founded & leadership)",
+          "url": "https://www.tigeranalytics.com/about-us/our-story/"
+        },
+        {
+          "label": "Contact & office locations",
+          "url": "https://www.tigeranalytics.com/contact-us/"
+        },
+        {
+          "label": "Careers (headcount)",
+          "url": "https://www.tigeranalytics.com/about-us/current-openings/"
+        },
+        {
+          "label": "Services",
+          "url": "https://www.tigeranalytics.com/services/"
+        },
+        {
+          "label": "Open IP",
+          "url": "https://www.tigeranalytics.com/open-ip/"
+        },
+        {
+          "label": "Why Join Us (work model)",
+          "url": "https://www.tigeranalytics.com/about-us/why-join-us/"
         }
       ]
     }
