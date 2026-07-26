@@ -26,8 +26,8 @@ jobs:
       - run: npm ci
       - run: node scripts/build-pages.mjs
         env:
-          NEXT_PUBLIC_BASE_PATH: /knowyourcompanytype
-          NEXT_PUBLIC_SITE_URL: https://nuthanm.github.io/knowyourcompanytype
+          NEXT_PUBLIC_BASE_PATH: /KnowYourCompanyType
+          NEXT_PUBLIC_SITE_URL: https://nuthanm.github.io/KnowYourCompanyType
           NEXT_PUBLIC_SUBMIT_API_URL: ${{ vars.SUBMIT_API_URL }}
       - uses: actions/upload-pages-artifact@v3
         with:
