@@ -5,7 +5,7 @@ export function PrivacyContent() {
     <section className="policy-page">
       <h1>Privacy Policy</h1>
       <p>
-        This policy explains what information Typewise collects, how it is used, and the choices you
+        This policy explains what information Know Your Company Type collects, how it is used, and the choices you
         have. By using the site, you agree to this policy.
       </p>
       <h2>Data we collect</h2>
@@ -71,7 +71,7 @@ export function TermsContent() {
     <section className="policy-page">
       <h1>Terms and Conditions</h1>
       <p>
-        Typewise is a community-maintained company directory for job seekers and researchers. It is not
+        Know Your Company Type is a community-maintained company directory for job seekers and researchers. It is not
         official company documentation and is not affiliated with listed employers.
       </p>
       <h2>Acceptable use</h2>

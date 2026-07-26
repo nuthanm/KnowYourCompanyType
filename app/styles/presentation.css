@@ -1,4 +1,4 @@
-/* Typewise stakeholder brief — same deck system as YieldProof */
+/* Know Your Company Type stakeholder brief — same deck system as YieldProof */
 
 .pres-root {
   --pres-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -43,7 +43,7 @@
 .pres-logo {
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 0.95rem;
   letter-spacing: -0.02em;
   color: var(--navy);
   text-decoration: none;

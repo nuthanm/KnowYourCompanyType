@@ -3,7 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { SubmitPageContent } from "@/components/SubmitPageContent";
 
 export const metadata = {
-  title: "Submit add or edit — Typewise",
+  title: "Submit add or edit — Know Your Company Type",
   description: "Request a new company or suggest edits. No sign-in required.",
 };
 

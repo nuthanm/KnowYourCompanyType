@@ -30,21 +30,21 @@ export const DIFFERENTIATION_MECHANISMS = [
 ];
 
 export const COVERAGE_COMPARISON = [
-  { label: "Product vs service filter", typewise: 95, market: 15 },
-  { label: "Rich company profiles", typewise: 90, market: 45 },
-  { label: "Interview pattern intel", typewise: 75, market: 40 },
-  { label: "India headcount split", typewise: 85, market: 20 },
-  { label: "Searchable directory", typewise: 92, market: 55 },
+  { label: "Product vs service filter", site: 95, market: 15 },
+  { label: "Rich company profiles", site: 90, market: 45 },
+  { label: "Interview pattern intel", site: 75, market: 40 },
+  { label: "India headcount split", site: 85, market: 20 },
+  { label: "Searchable directory", site: 92, market: 55 },
 ];
 
 export const COMPETITIVE_MATRIX = [
-  { criteria: "Product vs service filter", linkedin: 1, glassdoor: 0, ambition: 1, naukri: 0, tw: 5 },
-  { criteria: "Company profile depth", linkedin: 3, glassdoor: 3, ambition: 2, naukri: 1, tw: 5 },
-  { criteria: "Careers outbound link", linkedin: 4, glassdoor: 3, ambition: 3, naukri: 5, tw: 5 },
-  { criteria: "Interview patterns", linkedin: 1, glassdoor: 4, ambition: 4, naukri: 0, tw: 4 },
-  { criteria: "India office locations", linkedin: 3, glassdoor: 2, ambition: 3, naukri: 2, tw: 5 },
-  { criteria: "Free access (MVP)", linkedin: 3, glassdoor: 3, ambition: 4, naukri: 4, tw: 5 },
-  { criteria: "Not a job board", linkedin: 2, glassdoor: 5, ambition: 4, naukri: 1, tw: 5 },
+  { criteria: "Product vs service filter", linkedin: 1, glassdoor: 0, ambition: 1, naukri: 0, kyct: 5 },
+  { criteria: "Company profile depth", linkedin: 3, glassdoor: 3, ambition: 2, naukri: 1, kyct: 5 },
+  { criteria: "Careers outbound link", linkedin: 4, glassdoor: 3, ambition: 3, naukri: 5, kyct: 5 },
+  { criteria: "Interview patterns", linkedin: 1, glassdoor: 4, ambition: 4, naukri: 0, kyct: 4 },
+  { criteria: "India office locations", linkedin: 3, glassdoor: 2, ambition: 3, naukri: 2, kyct: 5 },
+  { criteria: "Free access (MVP)", linkedin: 3, glassdoor: 3, ambition: 4, naukri: 4, kyct: 5 },
+  { criteria: "Not a job board", linkedin: 2, glassdoor: 5, ambition: 4, naukri: 1, kyct: 5 },
 ];
 
 export const SAMPLE_COMPANIES = [

@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/AppShell";
 import { PrivacyContent } from "@/features/policy/policy-pages";
 
-export const metadata = { title: "Privacy Policy — Typewise" };
+export const metadata = { title: "Privacy Policy — Know Your Company Type" };
 
 export default function PrivacyPolicyPage() {
   return (

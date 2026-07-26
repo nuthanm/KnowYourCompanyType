@@ -18,15 +18,15 @@ const fraunces = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: "Typewise — Company type directory",
-    template: "%s | Typewise",
+    default: "Know Your Company Type — Company type directory",
+    template: "%s | Know Your Company Type",
   },
   description:
     "Know your company type before you apply. Product vs service company profiles for job seekers and researchers.",
   openGraph: {
-    title: "Typewise — Company type directory",
+    title: "Know Your Company Type — Company type directory",
     description: "Browse product vs service companies. Submit adds or edits without sign-in.",
-    siteName: "Typewise",
+    siteName: "Know Your Company Type",
   },
 };
 

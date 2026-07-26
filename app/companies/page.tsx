@@ -2,7 +2,7 @@ import { AppShell } from "@/components/AppShell";
 import { CompanyDirectory } from "@/features/companies/company-directory";
 
 export const metadata = {
-  title: "Companies — Typewise",
+  title: "Companies — Know Your Company Type",
   description: "Browse verified product-based and service-based companies. Filter by name and location.",
 };
 

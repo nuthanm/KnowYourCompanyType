@@ -1,4 +1,4 @@
-/* Typewise app shell and directory UI */
+/* Know Your Company Type app shell and directory UI */
 
 .app-shell {
   min-height: 100dvh;
@@ -30,7 +30,7 @@
 .app-brand {
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 0.95rem;
   color: var(--navy);
   text-decoration: none;
   white-space: nowrap;

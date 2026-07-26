@@ -8,7 +8,7 @@ export function VerifiedStamp({ size = "md", showLabel = true }: VerifiedStampPr
     <span
       className={`verified-stamp verified-stamp-${size}`}
       title="Manually validated on official company pages"
-      aria-label="Typewise verified — manually checked on official company website"
+      aria-label="Know Your Company Type verified — manually checked on official company website"
     >
       <span className="verified-stamp-icon" aria-hidden="true">
         ✓

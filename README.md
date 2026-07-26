@@ -1,4 +1,4 @@
-# Typewise
+# Know Your Company Type
 
 > Know your company type before you apply — verified, source-linked company profiles for job seekers and researchers.
 
@@ -135,7 +135,7 @@ npm run build:pages
 1. Repo **Settings → Pages → Build and deployment → Source** → choose **GitHub Actions** (not “Deploy from a branch”).
 2. If you previously used “Deploy from branch / main / root”, GitHub serves `README.md` as the site — that is **not** the app.
 3. After pushing to `main`, open **Actions → Deploy to GitHub Pages** and confirm the workflow is green.
-4. Live URL: `https://nuthanm.github.io/typewise/` (project site — `NEXT_PUBLIC_BASE_PATH=/typewise` is set in CI).
+4. Live URL: `https://knowyourcompanytype.com` (custom domain) or `https://nuthanm.github.io/typewise/` while Pages still uses `NEXT_PUBLIC_BASE_PATH=/typewise`.
 
 **If you still see the README instead of the app:** the deploy workflow failed or Pages source is wrong. Check the red **GitHub Pages** / **CI** badges in this README on GitHub Actions.
 

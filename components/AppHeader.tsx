@@ -55,8 +55,8 @@ export function AppHeader({ active, trailing }: AppHeaderProps) {
   return (
     <>
       <div className="app-nav-inner">
-        <Link href="/" className="app-brand">
-          Type<span>wise</span>
+        <Link href="/" className="app-brand" aria-label="Know Your Company Type home">
+          KnowYour<span>CompanyType</span>
         </Link>
 
         <div className="app-nav-search">

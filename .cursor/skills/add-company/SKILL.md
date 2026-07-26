@@ -1,12 +1,12 @@
 ---
 name: add-company
 description: >-
-  Research and add a new company profile to Typewise from official sources.
-  Use when the user says "Add this company", "Add company", "Add <name> to Typewise",
+  Research and add a new company profile to Know Your Company Type from official sources.
+  Use when the user says "Add this company", "Add company", "Add <name> to Know Your Company Type",
   or asks to create, draft, or verify a company profile.
 ---
 
-# Add Company to Typewise
+# Add Company to Know Your Company Type
 
 ## Trigger phrases
 

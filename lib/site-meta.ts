@@ -4,7 +4,7 @@ export {
   CATALOG_DISCLAIMER,
 } from "./companies";
 
-export const SITE_NAME = "Typewise";
+export const SITE_NAME = "Know Your Company Type";
 
 export const SITE_TAGLINE = "Know your company type before you apply";
 
@@ -40,7 +40,7 @@ export const DATA_ACCURACY_NOTICE = {
 
 export const EMAIL_FOOTER = {
   disclaimer:
-    "Typewise is a community directory, not official company documentation. Profiles use public sources and may change.",
+    "Know Your Company Type is a community directory, not official company documentation. Profiles use public sources and may change.",
   reportLine: "Report corrections via Submit request on the site — it helps others too.",
-  signOff: "— Typewise team",
+  signOff: "— Know Your Company Type team",
 };

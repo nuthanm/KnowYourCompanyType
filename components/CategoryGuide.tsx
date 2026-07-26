@@ -57,7 +57,7 @@ export function CategoryGuide() {
         <span className="landing-eyebrow">Company types</span>
         <h2 id="category-guide-heading">Product, service, or hybrid?</h2>
         <p>
-          Typewise labels every verified company so you know what kind of work you are likely to do
+          Know Your Company Type labels every verified company so you know what kind of work you are likely to do
           before you apply — not just the brand name.
         </p>
       </div>

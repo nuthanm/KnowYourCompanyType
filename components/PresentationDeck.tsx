@@ -74,8 +74,8 @@ export function PresentationDeck() {
 
       <div className="pres-shell">
         <header className="pres-header">
-          <Link href="/" className="pres-logo" aria-label="Typewise home — back to landing page">
-            Type<span>wise</span>
+          <Link href="/" className="pres-logo" aria-label="Know Your Company Type home — back to landing page">
+            KnowYour<span>CompanyType</span>
           </Link>
           <div className="flex items-center gap-3 text-xs font-semibold text-[var(--ink-faint)]">
             <span className="hidden sm:inline">Stakeholder Brief · July 2026</span>
@@ -125,7 +125,7 @@ export function PresentationDeck() {
         ) : (
           <div className="flex items-center gap-2">
           <Link href="/companies" className="pres-cta pres-cta-glow">Browse companies →</Link>
-            <a href="mailto:inbox.nuthan@gmail.com?subject=Typewise%20-%20Approved%20to%20Proceed" className="pres-cta pres-cta-secondary">Approve →</a>
+            <a href="mailto:inbox.nuthan@gmail.com?subject=Know%20Your%20Company%20Type%20-%20Approved%20to%20Proceed" className="pres-cta pres-cta-secondary">Approve →</a>
           </div>
         )}
       </footer>
@@ -144,7 +144,7 @@ function SlideTitle() {
     <div className="pres-stagger text-center">
       <p className="pres-kicker mx-auto">The Brief · Stakeholder Approval</p>
       <h1 className="pres-title mt-5">
-        Typewise
+        Know Your Company Type
         <span className="mt-2 block text-[var(--profit)]">Know your company type. Apply with clarity.</span>
       </h1>
       <p className="pres-subtitle mx-auto">
@@ -281,7 +281,7 @@ function SlideMarket() {
 
 function SlideCompetitors() {
   const rows = [
-    ["Typewise (planned)", "Product/service filter", "Full profiles", "Interview intel", "India-first", "Free MVP"],
+    ["Know Your Company Type (planned)", "Product/service filter", "Full profiles", "Interview intel", "India-first", "Free MVP"],
     ["LinkedIn", "No type filter", "Basic company page", "Limited", "Global", "Freemium"],
     ["Glassdoor", "No", "Reviews focus", "Interview reviews", "Global", "Free browse"],
     ["AmbitionBox", "Blog lists only", "Ratings + salary", "Interview exp.", "India", "Free"],
@@ -308,7 +308,7 @@ function SlideCompetitors() {
           </thead>
           <tbody>
             {rows.map(([name, ...rest]) => (
-              <tr key={name} className={name.startsWith("Typewise") ? "highlight" : undefined}>
+              <tr key={name} className={name.startsWith("Know Your Company Type") ? "highlight" : undefined}>
                 <td className="font-bold">{name}</td>
                 {rest.map((cell, i) => <td key={i}>{cell}</td>)}
               </tr>
@@ -324,19 +324,19 @@ function SlideCompare() {
   return (
     <div className="pres-stagger">
       <p className="pres-kicker">Head-to-head</p>
-      <h2 className="pres-title mt-4">Where Typewise wins</h2>
+      <h2 className="pres-title mt-4">Where Know Your Company Type wins</h2>
       <div className="mt-6 space-y-3">
         {COVERAGE_COMPARISON.map((row) => (
           <div key={row.label} className="pres-card">
             <div className="mb-2 flex items-center justify-between gap-2">
               <span className="text-sm font-extrabold">{row.label}</span>
-              <span className="pres-pill pres-pill-profit text-[10px]">Typewise</span>
+              <span className="pres-pill pres-pill-profit text-[10px]">Know Your Company Type</span>
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <span className="w-28 shrink-0 text-[11px] font-semibold text-[var(--profit)]">Typewise</span>
+                <span className="w-28 shrink-0 text-[11px] font-semibold text-[var(--profit)]">Know Your Company Type</span>
                 <div className="pres-metric-bar flex-1">
-                  <div className="pres-metric-fill bg-[var(--profit)]" style={{ width: `${row.typewise}%` }} />
+                  <div className="pres-metric-fill bg-[var(--profit)]" style={{ width: `${row.site}%` }} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -357,7 +357,7 @@ function SlideDifferentiation() {
   return (
     <div className="pres-stagger">
       <p className="pres-kicker">Why we win · Mechanisms</p>
-      <h2 className="pres-title mt-4">How Typewise is different — and why it&apos;s strong</h2>
+      <h2 className="pres-title mt-4">How Know Your Company Type is different — and why it&apos;s strong</h2>
       <div className="mt-6 space-y-3">
         {DIFFERENTIATION_MECHANISMS.map((m, i) => (
           <div key={m.title} className="pres-card pres-card-highlight pres-mechanism-card">
@@ -369,7 +369,7 @@ function SlideDifferentiation() {
                   <span className="font-bold text-[var(--loss)]">Others: </span>{m.others}
                 </p>
                 <p className="mt-1 text-[12px]">
-                  <span className="font-bold text-[var(--gold)]">Typewise: </span>{m.ours}
+                  <span className="font-bold text-[var(--gold)]">Know Your Company Type: </span>{m.ours}
                 </p>
               </div>
             </div>
@@ -436,7 +436,7 @@ function SlideJobSeekerValue() {
       <p className="pres-kicker">What you get</p>
       <h2 className="pres-title mt-4">Every answer job seekers need — before they apply</h2>
       <p className="pres-subtitle">
-        Typewise is not Glassdoor or a job board. It is the step before those — a verified snapshot
+        Know Your Company Type is not Glassdoor or a job board. It is the step before those — a verified snapshot
         that answers: <strong className="text-[var(--ink)]">&ldquo;Is this the kind of company I actually want to work at?&rdquo;</strong>
       </p>
       <div className="pres-proof-chain mt-6">
@@ -453,7 +453,7 @@ function SlideJobSeekerValue() {
           <thead>
             <tr>
               <th>Job seeker asks…</th>
-              <th>Typewise answers with…</th>
+              <th>Know Your Company Type answers with…</th>
             </tr>
           </thead>
           <tbody>
@@ -493,7 +493,7 @@ function SlideVerification() {
     ["1 · Official source", "We open the company About page, careers URL, and product pages — not scraped forums."],
     ["2 · Content match", "Every field (type, HQ, vision, links) must match what the company publishes publicly."],
     ["3 · Source links", "We store the exact URLs used so you can double-check anytime."],
-    ["4 · Verified stamp", "Only then the profile goes live with the Typewise Verified badge — browse with confidence."],
+    ["4 · Verified stamp", "Only then the profile goes live with the Know Your Company Type Verified badge — browse with confidence."],
   ];
 
   return (
@@ -622,10 +622,10 @@ function SlideProductVision() {
   return (
     <div className="pres-stagger">
       <p className="pres-kicker">Product vision</p>
-      <h2 className="pres-title mt-4">What Typewise looks like at launch</h2>
+      <h2 className="pres-title mt-4">What Know Your Company Type looks like at launch</h2>
       <div className="pres-mock-app pres-mock-glow mt-6">
         <div className="pres-mock-bar">
-          <span>Typewise · Company Directory</span>
+          <span>Know Your Company Type · Company Directory</span>
           <span className="text-[var(--profit-bright)]">● 3,431 indexed</span>
         </div>
         <div className="pres-mock-body">
@@ -719,7 +719,7 @@ function SlideAsk() {
           <span>Glassdoor</span>
           <span>AmbitionBox</span>
           <span>Naukri</span>
-          <span className="text-[var(--profit)]">Typewise</span>
+          <span className="text-[var(--profit)]">Know Your Company Type</span>
         </div>
         {COMPETITIVE_MATRIX.map((row) => (
           <div key={row.criteria} className="pres-scorecard-row">
@@ -728,7 +728,7 @@ function SlideAsk() {
             <div className="text-center"><Stars count={row.glassdoor} /></div>
             <div className="text-center"><Stars count={row.ambition} /></div>
             <div className="text-center"><Stars count={row.naukri} /></div>
-            <div className="text-center"><Stars count={row.tw} /></div>
+            <div className="text-center"><Stars count={row.kyct} /></div>
           </div>
         ))}
       </div>
@@ -741,7 +741,7 @@ function SlideAsk() {
         <Link href="/companies" className="pres-cta pres-cta-experience inline-flex">
           Experience how your site will look after approval →
         </Link>
-        <a href="mailto:inbox.nuthan@gmail.com?subject=Typewise%20MVP%20-%20Approved" className="pres-cta pres-cta-secondary inline-flex">
+        <a href="mailto:inbox.nuthan@gmail.com?subject=Know%20Your%20Company%20Type%20MVP%20-%20Approved" className="pres-cta pres-cta-secondary inline-flex">
           Green-light MVP →
         </a>
       </div>
