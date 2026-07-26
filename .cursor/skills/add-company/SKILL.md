@@ -194,9 +194,9 @@ When user says "verify", "publish", "looks good", or similar:
 
 ### Gold standard — global MNC product company
 
-Use **[AstraZeneca](https://nuthanm.github.io/typewise/companies/astrazeneca/)** (`slug: astrazeneca`) as the template for any new **global, public, product-based MNC** with India hiring presence. Match its field coverage, tone, and UI density before submitting for review.
+Use **[AstraZeneca](https://nuthanm.github.io/knowyourcompanytype/companies/astrazeneca/)** (`slug: astrazeneca`) as the template for any new **global, public, product-based MNC** with India hiring presence. Match its field coverage, tone, and UI density before submitting for review.
 
-**Live reference:** https://nuthanm.github.io/typewise/companies/astrazeneca/
+**Live reference:** https://nuthanm.github.io/knowyourcompanytype/companies/astrazeneca/
 
 **What a complete profile like AstraZeneca includes:**
 
