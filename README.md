@@ -2,11 +2,11 @@
 
 > Know your company type before you apply — verified, source-linked company profiles for job seekers and researchers.
 
-[![Pages](https://img.shields.io/github/actions/workflow/status/nuthanm/typewise/deploy-pages.yml?label=GitHub%20Pages&logo=github)](https://github.com/nuthanm/typewise/actions/workflows/deploy-pages.yml)
-[![CI](https://img.shields.io/github/actions/workflow/status/nuthanm/typewise/ci.yml?label=CI&logo=github)](https://github.com/nuthanm/typewise/actions/workflows/ci.yml)
+[![Pages](https://img.shields.io/github/actions/workflow/status/nuthanm/knowyourcompanytype/deploy-pages.yml?label=GitHub%20Pages&logo=github)](https://github.com/nuthanm/knowyourcompanytype/actions/workflows/deploy-pages.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/nuthanm/knowyourcompanytype/ci.yml?label=CI&logo=github)](https://github.com/nuthanm/knowyourcompanytype/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/github/license/nuthanm/typewise)](LICENSE)
+[![License](https://img.shields.io/github/license/nuthanm/knowyourcompanytype)](LICENSE)
 
 **Community-maintained directory. Not affiliated with listed companies. No dummy data — only verified entries.**
 
@@ -135,7 +135,7 @@ npm run build:pages
 1. Repo **Settings → Pages → Build and deployment → Source** → choose **GitHub Actions** (not “Deploy from a branch”).
 2. If you previously used “Deploy from branch / main / root”, GitHub serves `README.md` as the site — that is **not** the app.
 3. After pushing to `main`, open **Actions → Deploy to GitHub Pages** and confirm the workflow is green.
-4. Live URL: `https://knowyourcompanytype.com` (custom domain) or `https://nuthanm.github.io/typewise/` while Pages still uses `NEXT_PUBLIC_BASE_PATH=/typewise`.
+4. Live URL: `https://knowyourcompanytype.com` (custom domain) or `https://nuthanm.github.io/knowyourcompanytype/` (project site — `NEXT_PUBLIC_BASE_PATH=/knowyourcompanytype` is set in CI).
 
 **If you still see the README instead of the app:** the deploy workflow failed or Pages source is wrong. Check the red **GitHub Pages** / **CI** badges in this README on GitHub Actions.
 
