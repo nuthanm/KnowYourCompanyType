@@ -1,4 +1,4 @@
-/* Know Your Company Type stakeholder brief — same deck system as YieldProof */
+/* Know Your IT Hub stakeholder brief — same deck system as YieldProof */
 
 .pres-root {
   --pres-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -41,6 +41,9 @@
 }
 
 .pres-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 700;
   font-size: 0.95rem;

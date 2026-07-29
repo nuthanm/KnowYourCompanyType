@@ -1,12 +1,12 @@
 ---
 name: add-company
 description: >-
-  Research and add a new company profile to Know Your Company Type from official sources.
-  Use when the user says "Add this company", "Add company", "Add <name> to Know Your Company Type",
+  Research and add a new company profile to Know Your IT Hub from official sources.
+  Use when the user says "Add this company", "Add company", "Add <name> to Know Your IT Hub",
   or asks to create, draft, or verify a company profile.
 ---
 
-# Add Company to Know Your Company Type
+# Add Company to Know Your IT Hub
 
 ## Trigger phrases
 
@@ -194,9 +194,9 @@ When user says "verify", "publish", "looks good", or similar:
 
 ### Gold standard — global MNC product company
 
-Use **[AstraZeneca](https://nuthanm.github.io/knowyourcompanytype/companies/astrazeneca/)** (`slug: astrazeneca`) as the template for any new **global, public, product-based MNC** with India hiring presence. Match its field coverage, tone, and UI density before submitting for review.
+Use **[AstraZeneca](https://knowyourithub.com/companies/astrazeneca/)** (`slug: astrazeneca`) as the template for any new **global, public, product-based MNC** with India hiring presence. Match its field coverage, tone, and UI density before submitting for review.
 
-**Live reference:** https://nuthanm.github.io/knowyourcompanytype/companies/astrazeneca/
+**Live reference:** https://knowyourithub.com/companies/astrazeneca/
 
 **What a complete profile like AstraZeneca includes:**
 

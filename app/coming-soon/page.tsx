@@ -5,7 +5,7 @@ import { PipelineQueue } from "@/components/PipelineQueue";
 import { CATALOG_PROGRESS } from "@/lib/companies";
 
 export const metadata = {
-  title: "Review queue — Know Your Company Type",
+  title: "Review queue — Know Your IT Hub",
   description: "Browse companies in progress and awaiting review before they become verified profiles.",
 };
 

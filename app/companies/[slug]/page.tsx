@@ -13,11 +13,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
   const entry = getCompanyEntryBySlug(slug);
-  if (!entry) return { title: "Company not found — Know Your Company Type" };
+  if (!entry) return { title: "Company not found — Know Your IT Hub" };
   const company = getCompanyBySlug(slug);
   return {
-    title: `${entry.name} — Know Your Company Type`,
-    description: company?.tagline ?? entry.note ?? `${entry.name} on Know Your Company Type`,
+    title: `${entry.name} — Know Your IT Hub`,
+    description: company?.tagline ?? entry.note ?? `${entry.name} on Know Your IT Hub`,
   };
 }
 

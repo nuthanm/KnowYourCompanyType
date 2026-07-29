@@ -1,4 +1,4 @@
-/* Know Your Company Type app shell and directory UI */
+/* Know Your IT Hub app shell and directory UI */
 
 .app-shell {
   min-height: 100dvh;
@@ -28,6 +28,9 @@
 }
 
 .app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 700;
   font-size: 0.95rem;
@@ -36,7 +39,24 @@
   white-space: nowrap;
 }
 
-.app-brand span { color: var(--profit); }
+.app-brand span,
+.brand-mark-text span { color: var(--profit); }
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.brand-mark-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+.brand-mark-text {
+  font-family: inherit;
+  font-weight: inherit;
+}
 
 .app-nav-search {
   min-width: 0;

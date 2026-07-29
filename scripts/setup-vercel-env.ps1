@@ -10,8 +10,8 @@ param(
   [string]$DatabaseUrl = $env:DATABASE_URL,
   [string]$SmtpUser = "inbox.nuthan@gmail.com",
   [string]$MailTo = "inbox.nuthan@gmail.com",
-  [string]$SiteUrl = "https://knowyourcompanytype.vercel.app",
-  [string]$CatalogUrl = "https://nuthanm.github.io/KnowYourCompanyType"
+  [string]$SiteUrl = "https://knowyourithub.com",
+  [string]$CatalogUrl = "https://knowyourithub.com"
 )
 
 $ErrorActionPreference = "Continue"
@@ -52,10 +52,10 @@ function Add-VercelEnv {
 
 $captchaSecret = node -e "process.stdout.write(require('crypto').randomBytes(32).toString('hex'))"
 $adminApiKey = node -e "process.stdout.write(require('crypto').randomBytes(24).toString('hex'))"
-$corsOrigins = "https://nuthanm.github.io,https://knowyourcompanytype.com,$SiteUrl"
-$mailFrom = "Know Your Company Type <$SmtpUser>"
+$corsOrigins = "https://knowyourithub.com,$SiteUrl"
+$mailFrom = "Know Your IT Hub <$SmtpUser>"
 
-Write-Host "Adding Vercel environment variables for knowyourcompanytype..."
+Write-Host "Adding Vercel environment variables for knowyourithub..."
 Write-Host ""
 
 Add-VercelEnv -Name "NEXT_PUBLIC_SITE_URL" -Value $SiteUrl -Force

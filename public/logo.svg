@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 40" fill="none" role="img" aria-label="Know Your IT Hub">
+  <!-- Mark: IT hub  central node with orbiting links -->
+  <rect width="40" height="40" rx="9" fill="#0c1929"/>
+  <circle cx="20" cy="20" r="5.5" fill="#ffffff"/>
+  <circle cx="20" cy="20" r="2.4" fill="#0a66c2"/>
+  <circle cx="20" cy="7.5" r="2.2" fill="#0a66c2"/>
+  <circle cx="20" cy="32.5" r="2.2" fill="#057642"/>
+  <circle cx="7.5" cy="20" r="2.2" fill="#0a66c2"/>
+  <circle cx="32.5" cy="20" r="2.2" fill="#0a66c2"/>
+  <path d="M20 12.5V14.5M20 25.5V27.5M12.5 20H14.5M25.5 20H27.5" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round"/>
+  <!-- Wordmark -->
+  <text x="52" y="27" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="700" fill="#0c1929">KnowYour</text>
+  <text x="148" y="27" font-family="Georgia, 'Times New Roman', serif" font-size="18" font-weight="700" fill="#0a66c2">ITHub</text>
+</svg>

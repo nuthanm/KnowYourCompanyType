@@ -58,7 +58,7 @@ export function verifyQueueAcceptToken(token?: string | null): QueueAcceptPayloa
       requestType: parsed.requestType,
       message: parsed.message,
       submitterName: parsed.submitterName || "Email approval",
-      submitterEmail: parsed.submitterEmail || "noreply@knowyourcompanytype.com",
+      submitterEmail: parsed.submitterEmail || "noreply@knowyourithub.com",
     };
   } catch {
     return null;

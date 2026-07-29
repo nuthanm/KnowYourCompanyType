@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BrandMark } from "@/components/BrandMark";
 import { CATEGORY_COUNTS, SAMPLE_COMPANIES } from "@/lib/mockData";
 
 export default function PrototypeLandingPage() {
@@ -8,7 +9,7 @@ export default function PrototypeLandingPage() {
     <div className="proto-landing">
       <header className="proto-landing-nav">
         <Link href="/prototype" className="proto-brand">
-          KnowYour<span>CompanyType</span>
+          <BrandMark />
         </Link>
         <div className="flex items-center gap-3">
           <Link href="/" className="proto-text-link hidden sm:inline">← Stakeholder brief</Link>
@@ -90,7 +91,7 @@ export default function PrototypeLandingPage() {
       </section>
 
       <footer className="proto-landing-foot">
-        <span>Know Your Company Type prototype · July 2026</span>
+        <span>Know Your IT Hub prototype · July 2026</span>
         <Link href="/">Return to stakeholder brief</Link>
       </footer>
     </div>

@@ -64,7 +64,7 @@ export function HomePage() {
             <span>before you apply</span>
           </h1>
           <p className="landing-lead">
-            Know Your Company Type helps job seekers understand what kind of company they are joining — with
+            Know Your IT Hub helps job seekers understand what kind of company they are joining — with
             manually verified profiles, official source links, and clear product vs service labels.
           </p>
           <div className="landing-hero-actions">
@@ -127,7 +127,7 @@ export function HomePage() {
 
       <CategoryGuide />
 
-      <section className="landing-trust-row" aria-label="How Know Your Company Type works">
+      <section className="landing-trust-row" aria-label="How Know Your IT Hub works">
         {TRUST_PILLARS.map(({ title, body, icon: Icon }) => (
           <article key={title} className="landing-trust-card">
             <span className="landing-trust-icon" aria-hidden="true">

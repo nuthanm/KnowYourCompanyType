@@ -18,8 +18,8 @@ export function AdSenseScript() {
       setEnabled(getAdConsent() === "accepted" && isConfiguredClient(client));
     }
     sync();
-    window.addEventListener("knowyourcompanytype-consent-change", sync);
-    return () => window.removeEventListener("knowyourcompanytype-consent-change", sync);
+    window.addEventListener("knowyourithub-consent-change", sync);
+    return () => window.removeEventListener("knowyourithub-consent-change", sync);
   }, [client]);
 
   if (!enabled || !client) return null;
@@ -44,8 +44,8 @@ export function AdSlot({ slot, format = "auto" }: { slot?: string; format?: stri
       setEnabled(getAdConsent() === "accepted" && isConfiguredClient(client));
     }
     sync();
-    window.addEventListener("knowyourcompanytype-consent-change", sync);
-    return () => window.removeEventListener("knowyourcompanytype-consent-change", sync);
+    window.addEventListener("knowyourithub-consent-change", sync);
+    return () => window.removeEventListener("knowyourithub-consent-change", sync);
   }, [client]);
 
   useEffect(() => {

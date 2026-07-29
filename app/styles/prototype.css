@@ -1,4 +1,4 @@
-/* Know Your Company Type interactive prototype — matches YieldProof proto styles */
+/* Know Your IT Hub interactive prototype — matches YieldProof proto styles */
 
 .proto-landing {
   min-height: 100dvh;
@@ -19,6 +19,9 @@
 }
 
 .proto-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
   font-family: var(--font-fraunces), Georgia, serif;
   font-weight: 700;
   font-size: 1.125rem;

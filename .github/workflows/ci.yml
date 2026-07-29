@@ -19,7 +19,7 @@ jobs:
       - run: npm ci
       - run: npm run build:pages
         env:
-          NEXT_PUBLIC_BASE_PATH: /KnowYourCompanyType
-          NEXT_PUBLIC_SITE_URL: https://nuthanm.github.io/KnowYourCompanyType
+          NEXT_PUBLIC_BASE_PATH: ""
+          NEXT_PUBLIC_SITE_URL: https://knowyourithub.com
           NEXT_PUBLIC_SUBMIT_API_URL: ${{ vars.SUBMIT_API_URL }}
       - run: npm run lint

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { BrandMark } from "@/components/BrandMark";
 import { GlobalCompanySearch } from "@/components/GlobalCompanySearch";
 import {
   IconBrief,
@@ -55,8 +56,8 @@ export function AppHeader({ active, trailing }: AppHeaderProps) {
   return (
     <>
       <div className="app-nav-inner">
-        <Link href="/" className="app-brand" aria-label="Know Your Company Type home">
-          KnowYour<span>CompanyType</span>
+        <Link href="/" className="app-brand" aria-label="Know Your IT Hub home">
+          <BrandMark />
         </Link>
 
         <div className="app-nav-search">

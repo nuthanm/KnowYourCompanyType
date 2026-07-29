@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 
-const CONSENT_KEY = "knowyourcompanytype-cookie-consent";
+const CONSENT_KEY = "knowyourithub-cookie-consent";
 
 type ConsentValue = "accepted" | "essential";
 
@@ -20,7 +20,7 @@ function readConsent(): ConsentValue | null {
 function writeConsent(value: ConsentValue) {
   try {
     localStorage.setItem(CONSENT_KEY, value);
-    window.dispatchEvent(new CustomEvent("knowyourcompanytype-consent-change", { detail: value }));
+    window.dispatchEvent(new CustomEvent("knowyourithub-consent-change", { detail: value }));
   } catch {
     // ignore write failures
   }
@@ -32,10 +32,10 @@ export function getAdConsent(): ConsentValue | null {
 }
 
 function subscribeToConsent(callback: () => void) {
-  window.addEventListener("knowyourcompanytype-consent-change", callback);
+  window.addEventListener("knowyourithub-consent-change", callback);
   window.addEventListener("storage", callback);
   return () => {
-    window.removeEventListener("knowyourcompanytype-consent-change", callback);
+    window.removeEventListener("knowyourithub-consent-change", callback);
     window.removeEventListener("storage", callback);
   };
 }

@@ -87,7 +87,7 @@ export function FeedbackForm() {
     return (
       <div className="form-success">
         <h2>Thank you for your feedback</h2>
-        <p>Your opinion helps us improve Know Your Company Type for other job seekers researching company types.</p>
+        <p>Your opinion helps us improve Know Your IT Hub for other job seekers researching company types.</p>
         <Link href="/" className="app-btn primary">
           Back to browse
         </Link>

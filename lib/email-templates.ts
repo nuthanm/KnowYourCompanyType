@@ -50,7 +50,7 @@ export function buildAdminEmail(input: SubmissionInput & { id: string }) {
   const site = getSiteUrl();
   const catalog = getCatalogUrl();
   const addToQueueUrl = buildAddToQueueUrl(input);
-  const subject = `[Know Your Company Type] ${input.requestType === "add" ? "Add" : "Edit"} request: ${input.companyName}`;
+  const subject = `[${SITE_NAME}] ${input.requestType === "add" ? "Add" : "Edit"} request: ${input.companyName}`;
   const lines = [
     `New ${input.requestType} request for the ${DATA_YEAR} catalog.`,
     "",
@@ -161,7 +161,7 @@ export function buildSubscribeWelcomeEmail(input: { name: string; email: string 
 }
 
 export function buildFeedbackAdminEmail(input: FeedbackInput & { id: string }) {
-  const subject = `[Know Your Company Type] Site feedback — ${helpedLabel(input.helped)}`;
+  const subject = `[${SITE_NAME}] Site feedback — ${helpedLabel(input.helped)}`;
   const text = [
     `Feedback ID: ${input.id}`,
     `From: ${input.name} <${input.email}>`,
@@ -188,7 +188,7 @@ export function buildFeedbackUserEmail(input: FeedbackInput & { id: string }) {
   const text = [
     `Hi ${input.name},`,
     "",
-    "Thank you for sharing whether Know Your Company Type helped your career research.",
+    `Thank you for sharing whether ${SITE_NAME} helped your career research.`,
     "Your opinion helps us improve the catalog for other job seekers.",
     textFooter(),
   ].join("\n");

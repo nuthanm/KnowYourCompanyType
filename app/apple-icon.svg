@@ -1,5 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="Know Your Company Type">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="Know Your IT Hub">
   <rect width="180" height="180" rx="40" fill="#0c1929"/>
-  <rect x="39" y="39" width="102" height="25.5" rx="7" fill="#0a66c2"/>
-  <rect x="77.25" y="39" width="25.5" height="102" rx="7" fill="#ffffff"/>
+  <circle cx="90" cy="90" r="25" fill="#ffffff"/>
+  <circle cx="90" cy="90" r="11" fill="#0a66c2"/>
+  <circle cx="90" cy="34" r="10" fill="#0a66c2"/>
+  <circle cx="90" cy="146" r="10" fill="#057642"/>
+  <circle cx="34" cy="90" r="10" fill="#0a66c2"/>
+  <circle cx="146" cy="90" r="10" fill="#0a66c2"/>
+  <path d="M90 56V65M90 115V124M56 90H65M115 90H124" stroke="#ffffff" stroke-width="7.5" stroke-linecap="round"/>
 </svg>
