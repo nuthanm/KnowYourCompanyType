@@ -1,6 +1,6 @@
 {
   "dataYear": 2026,
-  "catalogUpdated": "2026-07-26",
+  "catalogUpdated": "2026-07-30",
   "disclaimer": "Profiles reflect publicly available information for the stated year. Company details change — always verify on official sites before applying.",
   "companies": [
     {
@@ -8827,6 +8827,113 @@
         {
           "label": "Why Join Us (work model)",
           "url": "https://www.tigeranalytics.com/about-us/why-join-us/"
+        }
+      ]
+    },
+    {
+      "slug": "husky",
+      "name": "Husky Technologies",
+      "category": "hybrid",
+      "tagline": "Injection molding systems, hot runners, and manufacturing services",
+      "description": "Founded in 1953, Husky Technologies is a global provider of injection molding systems, hot runners, mold controllers, and proactive monitoring services for PET packaging, food packaging, consumer goods, and medical device manufacturing.",
+      "website": "https://www.husky.co/en/",
+      "founded": "1953",
+      "hq": "Bolton, Canada",
+      "officeCities": [
+        "Chennai",
+        "Delhi"
+      ],
+      "officeCountries": [
+        "Canada",
+        "United States",
+        "India",
+        "China",
+        "Luxembourg",
+        "Switzerland",
+        "Japan"
+      ],
+      "totalOfficeLocations": "40+ locations",
+      "locationsUrl": "https://www.husky.co/en/about-us/",
+      "contactUrl": "https://www.husky.co/en/contact/",
+      "headcountGlobal": "4,300+",
+      "headcountNote": "Global headcount more than 4,300 per About Us and Careers; India headcount not published on official channels",
+      "domains": [
+        "Injection molding",
+        "Industrial equipment",
+        "Packaging technology"
+      ],
+      "tags": [
+        "MNC",
+        "Manufacturing"
+      ],
+      "products": [
+        "HyPET®6e",
+        "HyPET® NX6",
+        "ICHOR",
+        "HyCAP™4",
+        "HyPERSYNC™",
+        "HyLECTRIC®",
+        "Ultra Hot Runners",
+        "Pronto Hot Runners",
+        "Altanium mold controllers",
+        "Advantage+Elite™"
+      ],
+      "services": [
+        "Solution development",
+        "Factory planning / design / build",
+        "Customer training",
+        "Systems integration",
+        "Proactive monitoring (Advantage+)",
+        "OEM parts and technical support"
+      ],
+      "onsitePolicy": "Onsite for manufacturing; office roles may vary — verify on careers page",
+      "careersUrl": "https://www.husky.co/en/careers/",
+      "linkedin": "https://www.linkedin.com/company/husky-technologies",
+      "leadership": [
+        {
+          "name": "Robert Domodossola",
+          "role": "President & CEO"
+        },
+        {
+          "name": "Balaji Suresh",
+          "role": "COO"
+        }
+      ],
+      "vision": "Pioneering technologies that enable the delivery of essential needs to the global community, with a commitment to enabling the circular economy.",
+      "lastVerified": "2026-07-30",
+      "verificationStatus": "verified",
+      "sources": [
+        {
+          "label": "About Us",
+          "url": "https://www.husky.co/en/about-us/"
+        },
+        {
+          "label": "Leadership Team",
+          "url": "https://www.husky.co/en/about-us/leadership-team/"
+        },
+        {
+          "label": "CEO bio",
+          "url": "https://www.husky.co/en/about-us/leadership-team/Robert-Domodossola/"
+        },
+        {
+          "label": "COO bio",
+          "url": "https://www.husky.co/en/about-us/leadership-team/Balaji-Suresh/"
+        },
+        {
+          "label": "India presence",
+          "url": "https://www.husky.co/en/about-us/news/india-event-march-2025/"
+        },
+        {
+          "label": "Homepage / products",
+          "url": "https://www.husky.co/en/"
+        },
+        {
+          "label": "Careers",
+          "url": "https://www.husky.co/en/careers/"
+        },
+        {
+          "label": "Contact",
+          "url": "https://www.husky.co/en/contact/"
         }
       ]
     }
