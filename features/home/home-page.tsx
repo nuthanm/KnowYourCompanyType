@@ -14,12 +14,36 @@ import { CategoryGuide } from "@/components/CategoryGuide";
 import { DataNotice } from "@/components/DataNotice";
 import { VerificationStatusTag } from "@/components/VerificationStatusTag";
 import {
+  IconArrowRight,
   IconBrief,
-  IconCompanies,
-  IconGlobe,
+  IconNodes,
+  IconPackage,
+  IconRefresh,
+  IconShieldCheck,
   IconSubmit,
+  IconTarget,
   IconUsers,
 } from "@/components/PortalIcons";
+
+const CATALOG_GOAL = 1000;
+
+const TRUST_FEATURES = [
+  {
+    title: "Verified manually",
+    body: "Human-verified, not auto-tagged.",
+    icon: IconShieldCheck,
+  },
+  {
+    title: "Job seeker first",
+    body: "Clarity before you apply.",
+    icon: IconTarget,
+  },
+  {
+    title: "Updated regularly",
+    body: `Live catalog · ${CATALOG_UPDATED}.`,
+    icon: IconRefresh,
+  },
+] as const;
 
 const TRUST_PILLARS = [
   {
@@ -30,7 +54,7 @@ const TRUST_PILLARS = [
   {
     title: "Source-linked data",
     body: "Headcount, work model, and company type link back to public sources you can open and verify yourself.",
-    icon: IconGlobe,
+    icon: IconShieldCheck,
   },
   {
     title: "Community corrections",
@@ -46,13 +70,16 @@ function categoryClass(category: (typeof VERIFIED_COMPANIES)[number]["category"]
   return "tag";
 }
 
+function pct(part: number, total: number) {
+  if (total <= 0) return "0%";
+  return `${((part / total) * 100).toFixed(1)}%`;
+}
+
 export function HomePage() {
   const featured = VERIFIED_COMPANIES.slice(0, 3);
-  const hasPipeline =
-    CATALOG_PROGRESS.inProgress + CATALOG_PROGRESS.unverified > 0;
-  const verifiedPercent = hasPipeline
-    ? Math.round((CATALOG_PROGRESS.verified / CATALOG_PROGRESS.totalTracked) * 100)
-    : 100;
+  const verified = CATEGORY_COUNTS.total;
+  const goalPercent = Math.min(100, Math.round((verified / CATALOG_GOAL) * 100));
+  const categoryTotal = Math.max(1, verified);
 
   return (
     <div className="landing-page">
@@ -60,67 +87,85 @@ export function HomePage() {
         <div className="landing-hero-copy">
           <span className="landing-eyebrow">Company directory · {DATA_YEAR}</span>
           <h1>
-            Know if a company is product or service
+            Know if a company is product or service{" "}
             <span>before you apply</span>
           </h1>
           <p className="landing-lead">
-            Know Your IT Hub helps job seekers understand what kind of company they are joining — with
-            manually verified profiles, official source links, and clear product vs service labels.
+            We verify and classify IT companies as Product, Service, or Hybrid — so you can apply with
+            confidence.
           </p>
           <div className="landing-hero-actions">
             <Link href="/companies" className="landing-btn primary">
-              Browse {CATEGORY_COUNTS.total} verified companies
+              Browse {verified} verified companies
+              <IconArrowRight size={16} />
             </Link>
             <Link href="/brief" className="landing-btn secondary">
               Read the brief
             </Link>
           </div>
-          <ul className="landing-trust-chips" aria-label="Trust signals">
-            <li>No sign-in required</li>
-            <li>Official sources only</li>
-            <li>Updated {CATALOG_UPDATED}</li>
+          <ul className="landing-trust-features" aria-label="Why Know Your IT Hub">
+            {TRUST_FEATURES.map(({ title, body, icon: Icon }) => (
+              <li key={title}>
+                <span className="landing-trust-feature-icon" aria-hidden="true">
+                  <Icon size={18} />
+                </span>
+                <span>
+                  <strong>{title}</strong>
+                  <em>{body}</em>
+                </span>
+              </li>
+            ))}
           </ul>
         </div>
 
         <aside className="landing-hero-panel" aria-label="Catalog snapshot">
           <div className="landing-panel-head">
             <span className="landing-panel-label">Live catalog</span>
-            <VerificationStatusTag status="verified" size="sm" />
+            <span className="landing-live-pill">
+              <span className="landing-live-dot" aria-hidden="true" />
+              Live
+            </span>
           </div>
           <div className="landing-panel-score">
-            <strong>{CATALOG_PROGRESS.verified}</strong>
+            <strong>{verified}</strong>
             <span>verified companies live today</span>
           </div>
           <div className="landing-progress-track" aria-hidden="true">
-            <div className="landing-progress-fill" style={{ width: `${verifiedPercent}%` }} />
+            <div className="landing-progress-fill" style={{ width: `${goalPercent}%` }} />
           </div>
-          <p className="landing-panel-meta">
-            {hasPipeline ? (
-              <>
-                {verifiedPercent}% of {CATALOG_PROGRESS.totalTracked} tracked names are fully published ·{" "}
-                {CATALOG_PROGRESS.inProgress} in progress · {CATALOG_PROGRESS.unverified} awaiting review
-              </>
-            ) : (
-              <>All {CATALOG_PROGRESS.verified} profiles verified against official sources</>
-            )}
+          <p className="landing-panel-meta landing-panel-goal">
+            <span>Goal: {CATALOG_GOAL.toLocaleString()} companies</span>
+            <span>{goalPercent}%</span>
           </p>
           <div className="landing-panel-stats">
-            <div>
+            <div className="is-product">
+              <span className="landing-panel-stat-icon" aria-hidden="true">
+                <IconPackage size={16} />
+              </span>
+              <span className="landing-panel-stat-label">Product</span>
               <strong>{CATEGORY_COUNTS.product}</strong>
-              <span>Product</span>
+              <em>{pct(CATEGORY_COUNTS.product, categoryTotal)}</em>
             </div>
-            <div>
+            <div className="is-service">
+              <span className="landing-panel-stat-icon" aria-hidden="true">
+                <IconUsers size={16} />
+              </span>
+              <span className="landing-panel-stat-label">Service</span>
               <strong>{CATEGORY_COUNTS.service}</strong>
-              <span>Service</span>
+              <em>{pct(CATEGORY_COUNTS.service, categoryTotal)}</em>
             </div>
-            <div>
+            <div className="is-hybrid">
+              <span className="landing-panel-stat-icon" aria-hidden="true">
+                <IconNodes size={16} />
+              </span>
+              <span className="landing-panel-stat-label">Hybrid</span>
               <strong>{CATEGORY_COUNTS.hybrid}</strong>
-              <span>Hybrid</span>
+              <em>{pct(CATEGORY_COUNTS.hybrid, categoryTotal)}</em>
             </div>
           </div>
-          <Link href="/companies" className="landing-panel-link">
-            <IconCompanies size={16} />
-            Explore directory
+          <Link href="/companies" className="landing-panel-cta">
+            View all companies
+            <IconArrowRight size={16} />
           </Link>
         </aside>
       </section>

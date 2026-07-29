@@ -63,8 +63,8 @@
   border-radius: 4px;
 }
 
-.pres-logo span {
-  color: var(--profit);
+.pres-logo .brand-mark-text {
+  color: var(--navy);
 }
 
 .pres-stage {

@@ -220,3 +220,50 @@ export function IconArrowLeft(props: IconProps) {
     </Svg>
   );
 }
+
+export function IconArrowRight(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6 12h12M14 8l4 4-4 4" />
+    </Svg>
+  );
+}
+
+export function IconShieldCheck(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3.5 19 6.5v5.2c0 4.2-2.8 7.9-7 9.3-4.2-1.4-7-5.1-7-9.3V6.5L12 3.5Z" />
+      <path d="m9.5 12 1.8 1.8L15 10" />
+    </Svg>
+  );
+}
+
+export function IconTarget(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4.5" />
+      <circle cx="12" cy="12" r="1.25" fill="currentColor" stroke="none" />
+    </Svg>
+  );
+}
+
+export function IconRefresh(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3" />
+      <path d="M19.5 4.5v5h-5" />
+    </Svg>
+  );
+}
+
+export function IconNodes(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="7" cy="8" r="2.25" />
+      <circle cx="17" cy="7" r="2.25" />
+      <circle cx="12" cy="17" r="2.25" />
+      <path d="M8.8 9.2 10.6 15M15.2 8.5 13.2 15M9.2 8h5.5" />
+    </Svg>
+  );
+}

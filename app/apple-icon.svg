@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="Know Your IT Hub">
-  <rect width="180" height="180" rx="40" fill="#0c1929"/>
-  <circle cx="90" cy="90" r="25" fill="#ffffff"/>
-  <circle cx="90" cy="90" r="11" fill="#0a66c2"/>
-  <circle cx="90" cy="34" r="10" fill="#0a66c2"/>
-  <circle cx="90" cy="146" r="10" fill="#057642"/>
-  <circle cx="34" cy="90" r="10" fill="#0a66c2"/>
-  <circle cx="146" cy="90" r="10" fill="#0a66c2"/>
-  <path d="M90 56V65M90 115V124M56 90H65M115 90H124" stroke="#ffffff" stroke-width="7.5" stroke-linecap="round"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 190" fill="none" role="img" aria-label="Know Your IT Hub">
+  <path
+    fill="#0c1929"
+    d="M50 8h42c6.6 0 12 5.4 12 12v10h32c20 0 36 16 36 36v84c0 20-16 36-36 36H44c-20 0-36-16-36-36V66c0-20 16-36 36-36h18V20c0-6.6 5.4-12 12-12Z"
+  />
+  <path
+    fill="#ffffff"
+    d="M62 58h14v39l31-39h17l-34 41 36 47h-17.5L76 109v37H62V58Z"
+  />
 </svg>

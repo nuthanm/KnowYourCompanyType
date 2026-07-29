@@ -4,7 +4,7 @@ type BrandMarkProps = {
   wordmarkOnly?: boolean;
 };
 
-/** Inline brand mark + KnowYourITHub wordmark matching site navy/blue palette. */
+/** Inline brand mark + Know Your IT Hub wordmark — navy K-tab mark + serif wordmark. */
 export function BrandMark({ className, wordmarkOnly = false }: BrandMarkProps) {
   return (
     <span className={className ? `brand-mark ${className}` : "brand-mark"}>
@@ -12,29 +12,22 @@ export function BrandMark({ className, wordmarkOnly = false }: BrandMarkProps) {
         <svg
           className="brand-mark-icon"
           xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 32 32"
+          viewBox="0 0 32 34"
           width={22}
-          height={22}
+          height={23}
           aria-hidden
         >
-          <rect width="32" height="32" rx="7" fill="#0c1929" />
-          <circle cx="16" cy="16" r="4.4" fill="#ffffff" />
-          <circle cx="16" cy="16" r="1.9" fill="#0a66c2" />
-          <circle cx="16" cy="6" r="1.75" fill="#0a66c2" />
-          <circle cx="16" cy="26" r="1.75" fill="#057642" />
-          <circle cx="6" cy="16" r="1.75" fill="#0a66c2" />
-          <circle cx="26" cy="16" r="1.75" fill="#0a66c2" />
           <path
-            d="M16 10V11.6M16 20.4V22M10 16H11.6M20.4 16H22"
-            stroke="#ffffff"
-            strokeWidth="1.35"
-            strokeLinecap="round"
+            fill="#0c1929"
+            d="M9 1.5h7.5c1.1 0 2 .9 2 2V5h5.5A6 6 0 0 1 30 11v15a6 6 0 0 1-6 6H8a6 6 0 0 1-6-6V11a6 6 0 0 1 6-6h3V3.5c0-1.1.9-2 2-2Z"
+          />
+          <path
+            fill="#ffffff"
+            d="M11.2 10.2h2.35v7.05l5.55-7.05h2.85l-5.95 7.35 6.35 8.35h-2.9l-5.9-7.85v7.85H11.2V10.2Z"
           />
         </svg>
       )}
-      <span className="brand-mark-text">
-        KnowYour<span>ITHub</span>
-      </span>
+      <span className="brand-mark-text">Know Your IT Hub</span>
     </span>
   );
 }
