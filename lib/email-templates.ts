@@ -1,9 +1,10 @@
 import { DATA_YEAR } from "./companies";
+import { contactTopicLabel } from "./contact-store";
 import { helpedLabel } from "./feedback-store";
 import { escapeHtml } from "./security/sanitize";
 import { createQueueAcceptToken } from "./security/queue-token";
 import { EMAIL_FOOTER, getApiPublicUrl, getCatalogUrl, getSiteUrl, SITE_NAME } from "./site-meta";
-import type { FeedbackInput, SubmissionInput } from "./validators";
+import type { ContactInput, FeedbackInput, SubmissionInput } from "./validators";
 
 function emailShell(title: string, bodyHtml: string) {
   const site = escapeHtml(getSiteUrl());
@@ -15,7 +16,7 @@ function emailShell(title: string, bodyHtml: string) {
       <hr style="border:none;border-top:1px solid #e8e4dc;margin:20px 0" />
       <p style="font-size:12px;color:#737373">${escapeHtml(EMAIL_FOOTER.disclaimer)}</p>
       <p style="font-size:12px;color:#737373">${escapeHtml(EMAIL_FOOTER.reportLine)}</p>
-      <p style="font-size:12px"><a href="${site}/submit" style="color:#0a66c2">Submit a correction</a> · <a href="${site}/feedback" style="color:#0a66c2">Share feedback</a></p>
+      <p style="font-size:12px"><a href="${site}/submit" style="color:#0a66c2">Submit a correction</a> · <a href="${site}/contact" style="color:#0a66c2">Contact</a> · <a href="${site}/feedback" style="color:#0a66c2">Share feedback</a></p>
       <p style="font-size:12px;color:#737373;margin-top:12px">${escapeHtml(EMAIL_FOOTER.signOff)}</p>
     </div>
   `;
@@ -199,6 +200,59 @@ export function buildFeedbackUserEmail(input: FeedbackInput & { id: string }) {
       <p>Hi ${escapeHtml(input.name)},</p>
       <p>Thank you for telling us whether <strong>${escapeHtml(SITE_NAME)}</strong> helped you pick the right company.</p>
       <p>We read every response. Report data issues anytime via Submit request.</p>
+    `,
+  );
+
+  return { subject, text, html };
+}
+
+export function buildContactAdminEmail(input: ContactInput & { id: string }) {
+  const subject = `[${SITE_NAME}] Contact — ${contactTopicLabel(input.topic)}`;
+  const text = [
+    `Contact ID: ${input.id}`,
+    `From: ${input.name} <${input.email}>`,
+    `Topic: ${contactTopicLabel(input.topic)}`,
+    "",
+    "Message:",
+    input.message,
+    textFooter(),
+  ].join("\n");
+
+  const html = emailShell(
+    "New contact message",
+    `
+      <p><strong>ID:</strong> ${escapeHtml(input.id)}</p>
+      <p><strong>From:</strong> ${escapeHtml(input.name)} (${escapeHtml(input.email)})</p>
+      <p><strong>Topic:</strong> ${escapeHtml(contactTopicLabel(input.topic))}</p>
+      <pre style="white-space:pre-wrap;font-family:inherit;background:#f7f5f0;padding:12px;border-radius:8px">${escapeHtml(input.message)}</pre>
+    `,
+  );
+
+  return { subject, text, html };
+}
+
+export function buildContactUserEmail(input: ContactInput & { id: string }) {
+  const subject = `We received your ${SITE_NAME} message`;
+  const text = [
+    `Hi ${input.name},`,
+    "",
+    `Thank you for contacting ${SITE_NAME}.`,
+    `Topic: ${contactTopicLabel(input.topic)}`,
+    `Reference: ${input.id}`,
+    "",
+    "We read every message and will reply when a response is needed.",
+    "For company corrections, use Submit request on the site.",
+    textFooter(),
+  ].join("\n");
+
+  const html = emailShell(
+    "We received your message",
+    `
+      <p>Hi ${escapeHtml(input.name)},</p>
+      <p>Thank you for contacting <strong>${escapeHtml(SITE_NAME)}</strong>.</p>
+      <p><strong>Topic:</strong> ${escapeHtml(contactTopicLabel(input.topic))}</p>
+      <p><strong>Reference:</strong> ${escapeHtml(input.id)}</p>
+      <p>We read every message and will reply when a response is needed. For company corrections, use Submit request.</p>
     `,
   );
 

@@ -32,5 +32,22 @@ export const feedbackSchema = z.object({
   formStartedAt: z.number().optional(),
 });
 
+export const contactSchema = z.object({
+  name: z.string().trim().min(2, "Your name is required").max(80),
+  email: z.string().trim().email("Enter a valid email").max(120),
+  topic: z.enum(["general", "privacy", "partnership", "other"], {
+    message: "Please select a topic",
+  }),
+  message: z.string().trim().min(20, "Please include a short message (min 20 characters)").max(4000),
+  acceptPolicy: z
+    .boolean({ message: "You must accept the Privacy Policy and Terms" })
+    .refine((v) => v === true, { message: "You must accept the Privacy Policy and Terms" }),
+  captchaToken: z.string().optional(),
+  captchaAnswer: z.number().optional(),
+  websiteField: z.string().optional(),
+  formStartedAt: z.number().optional(),
+});
+
 export type SubmissionInput = z.infer<typeof submissionSchema>;
 export type FeedbackInput = z.infer<typeof feedbackSchema>;
+export type ContactInput = z.infer<typeof contactSchema>;

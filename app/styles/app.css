@@ -2705,6 +2705,73 @@ a.pipeline-stat-link:hover {
   line-height: 1.65;
 }
 
+.about-page {
+  max-width: 720px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+.about-page-header {
+  margin-bottom: 2rem;
+}
+
+.about-pillars {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.about-pillars li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.about-pillar-index {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--profit);
+  line-height: 1.2;
+  padding-top: 0.15rem;
+}
+
+.about-pillars h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.about-pillars p {
+  margin: 0.5rem 0 0;
+  color: var(--ink-soft);
+}
+
+.about-cta {
+  margin-top: 2.5rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--cream-2);
+}
+
+.about-cta h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.about-cta p {
+  margin: 0.75rem 0 0;
+  color: var(--ink-soft);
+}
+
+.about-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
 .policy-page h1 {
   font-family: var(--font-fraunces), Georgia, serif;
   font-size: 2rem;
@@ -4139,8 +4206,36 @@ a.pipeline-stat-link:hover {
 
 .company-search-empty {
   margin: 0;
-  padding: 0.85rem 1rem;
+  padding: 0.85rem 1rem 1rem;
   font-size: 13px;
+  color: var(--ink-faint);
+}
+
+.company-search-empty > p {
+  margin: 0;
+}
+
+.company-search-submit-cta {
+  display: inline-flex;
+  margin-top: 0.65rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  background: var(--profit);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.company-search-submit-cta:hover,
+.company-search-submit-cta:focus-visible {
+  filter: brightness(1.06);
+  outline: none;
+}
+
+.company-search-empty-hint {
+  margin: 0.5rem 0 0;
+  font-size: 12px;
   color: var(--ink-faint);
 }
 

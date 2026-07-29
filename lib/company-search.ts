@@ -59,78 +59,94 @@ export function pipelineToEntry(
   };
 }
 
+/** Unique location labels for filters — prefers full HQ over bare city duplicates. */
 export function getCompanyLocations(companies: CompanyProfile[]) {
   const set = new Set<string>();
   for (const c of companies) {
     const hq = c.hq.trim();
     if (hq) set.add(hq);
-    const city = hq.split(",")[0]?.trim();
-    if (city) set.add(city);
     for (const officeCity of c.officeCities ?? []) {
       const trimmed = officeCity.trim();
       if (trimmed) set.add(trimmed);
     }
-    for (const country of c.officeCountries ?? []) {
-      const trimmed = country.trim();
-      if (trimmed) set.add(trimmed);
-    }
   }
-  return Array.from(set).sort((a, b) => a.localeCompare(b));
+
+  const all = Array.from(set);
+  // Drop "Akron" when "Akron, United States" exists; keep distinct regions (e.g. Arlington TX vs VA).
+  const deduped = all.filter((loc) => {
+    const lower = loc.toLowerCase();
+    return !all.some((other) => {
+      if (other === loc) return false;
+      const o = other.toLowerCase();
+      return o.startsWith(`${lower},`) || o.startsWith(`${lower} /`);
+    });
+  });
+
+  return deduped.sort((a, b) => a.localeCompare(b));
+}
+
+/** Match company identity fields only — not HQ/tags/description (avoids “Del” → Delhi). */
+function companyMatchesQuery(
+  query: string,
+  fields: { name: string; slug?: string; domains?: string[] },
+) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+
+  const name = fields.name.toLowerCase();
+  const slug = (fields.slug ?? "").toLowerCase();
+  if (name.includes(q) || slug.includes(q)) return true;
+
+  return (fields.domains ?? []).some((domain) => domain.toLowerCase().includes(q));
+}
+
+function queryMatchRank(
+  query: string,
+  fields: { name: string; slug?: string; domains?: string[] },
+) {
+  const q = query.trim().toLowerCase();
+  const name = fields.name.toLowerCase();
+  const slug = (fields.slug ?? "").toLowerCase();
+
+  if (name.startsWith(q)) return 0;
+  if (name.split(/[\s\-_/]+/).some((part) => part.startsWith(q))) return 1;
+  if (name.includes(q)) return 2;
+  if (slug.startsWith(q) || slug.includes(q)) return 3;
+  if ((fields.domains ?? []).some((domain) => domain.toLowerCase().includes(q))) return 4;
+  return 5;
 }
 
 export function filterCompanies(companies: CompanyProfile[], filters: CompanySearchFilters) {
-  const q = filters.query?.trim().toLowerCase() ?? "";
+  const q = filters.query?.trim() ?? "";
   const loc = filters.location?.trim().toLowerCase() ?? "";
   const category = filters.category ?? "all";
 
-  return companies.filter((c) => {
+  const matched = companies.filter((c) => {
     if (category !== "all" && c.category !== category) return false;
 
     if (loc && loc !== "all" && !companyMatchesLocation(c, loc)) return false;
 
-    if (!q) return true;
+    return companyMatchesQuery(q, { name: c.name, slug: c.slug, domains: c.domains });
+  });
 
-    const haystack = [
-      c.name,
-      c.tagline,
-      c.description,
-      c.hq,
-      ...c.domains,
-      ...c.tags,
-      ...(c.products ?? []),
-      ...(c.services ?? []),
-      ...(c.officeCities ?? []),
-      ...(c.officeCountries ?? []),
-    ]
-      .join(" ")
-      .toLowerCase();
+  if (!q.trim()) return matched;
 
-    return haystack.includes(q);
+  return matched.sort((a, b) => {
+    const rankDiff =
+      queryMatchRank(q, { name: a.name, slug: a.slug, domains: a.domains }) -
+      queryMatchRank(q, { name: b.name, slug: b.slug, domains: b.domains });
+    if (rankDiff !== 0) return rankDiff;
+    return a.name.localeCompare(b.name);
   });
 }
 
-function entryHaystack(entry: CompanySearchEntry) {
-  return [
-    entry.name,
-    entry.slug,
-    entry.tagline,
-    entry.note,
-    entry.hq,
-    ...(entry.domains ?? []),
-    ...(entry.tags ?? []),
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
 export function filterCompanyEntries(entries: CompanySearchEntry[], filters: CompanySearchFilters) {
-  const q = filters.query?.trim().toLowerCase() ?? "";
+  const q = filters.query?.trim() ?? "";
   const loc = filters.location?.trim().toLowerCase() ?? "";
   const category = filters.category ?? "all";
   const status = filters.status ?? "all";
 
-  return entries.filter((entry) => {
+  const matched = entries.filter((entry) => {
     if (status === "pipeline" && entry.verificationStatus === "verified") return false;
     if (
       status !== "all" &&
@@ -153,8 +169,20 @@ export function filterCompanyEntries(entries: CompanySearchEntry[], filters: Com
       if (!matchesHq && !matchesOffices && !matchesCountries) return false;
     }
 
-    if (!q) return true;
+    return companyMatchesQuery(q, {
+      name: entry.name,
+      slug: entry.slug,
+      domains: entry.domains,
+    });
+  });
 
-    return entryHaystack(entry).includes(q);
+  if (!q.trim()) return matched;
+
+  return matched.sort((a, b) => {
+    const rankDiff =
+      queryMatchRank(q, { name: a.name, slug: a.slug, domains: a.domains }) -
+      queryMatchRank(q, { name: b.name, slug: b.slug, domains: b.domains });
+    if (rankDiff !== 0) return rankDiff;
+    return a.name.localeCompare(b.name);
   });
 }

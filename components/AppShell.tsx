@@ -5,7 +5,7 @@ import stats from "@/data/site-stats.json";
 
 type AppShellProps = {
   children: React.ReactNode;
-  active?: "home" | "companies" | "queue" | "brief" | "submit" | "feedback";
+  active?: "home" | "companies" | "queue" | "brief" | "submit" | "feedback" | "about" | "contact";
   wide?: boolean;
 };
 
@@ -17,7 +17,7 @@ export function AppShell({ children, active, wide }: AppShellProps) {
     <div className="app-shell">
       <header className="app-nav">
         <AppHeader
-          active={active}
+          active={active === "about" || active === "contact" ? undefined : active}
           trailing={showSubscriberPill ? <SubscriberPill /> : undefined}
         />
       </header>
@@ -27,10 +27,12 @@ export function AppShell({ children, active, wide }: AppShellProps) {
           Know your company type before you apply — manually verified profiles from official sources.
         </p>
         <div className="app-footer-links">
+          <Link href="/about">About</Link>
+          <Link href="/contact">Contact</Link>
           <Link href="/companies">Companies</Link>
           <Link href="/coming-soon">Review queue</Link>
           <Link href="/brief">The Brief</Link>
-          <Link href="/submit">Submit add / edit</Link>
+          <Link href="/submit">Submit request</Link>
           <Link href="/feedback">Feedback</Link>
           <Link href="/privacy-policy">Privacy Policy</Link>
           <Link href="/terms-and-conditions">Terms</Link>

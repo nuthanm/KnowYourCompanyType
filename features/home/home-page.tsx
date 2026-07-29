@@ -184,7 +184,7 @@ export function HomePage() {
         <div className="landing-cta-actions">
           <Link href="/submit" className="landing-btn primary">
             <IconSubmit size={16} />
-            Submit add / edit
+            Submit request
           </Link>
           <Link href="/brief" className="landing-btn secondary">
             <IconBrief size={16} />

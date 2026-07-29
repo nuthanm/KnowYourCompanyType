@@ -9,7 +9,7 @@ import {
   VERIFIED_COMPANIES,
   type CompanyCategory,
 } from "@/lib/companies";
-import { filterCompanies } from "@/lib/company-search";
+import { filterCompanies, getCompanyLocations } from "@/lib/company-search";
 import { CompanyListRowFromEntry, CompanyTileFromEntry } from "@/components/CompanyCard";
 import { AlphabetIndex, groupCompaniesByLetter } from "@/components/AlphabetIndex";
 import { AdSlot } from "@/components/AdSense";
@@ -31,16 +31,7 @@ export function CompanyDirectory() {
   const [category, setCategory] = useState<CompanyCategory | "all">("all");
   const [view, setView] = useState<ViewMode>("list");
 
-  const locations = useMemo(() => {
-    const set = new Set<string>();
-    for (const c of VERIFIED_COMPANIES) {
-      const hq = c.hq.trim();
-      if (hq) set.add(hq);
-      const city = hq.split(",")[0]?.trim();
-      if (city) set.add(city);
-    }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, []);
+  const locations = useMemo(() => getCompanyLocations(VERIFIED_COMPANIES), []);
 
   const results = useMemo(() => {
     const filters = {

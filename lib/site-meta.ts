@@ -46,6 +46,11 @@ export function getFeedbackApiUrl() {
   return base ? `${base}/api/feedback` : "/api/feedback";
 }
 
+export function getContactApiUrl() {
+  const base = getApiBaseUrl();
+  return base ? `${base}/api/contact` : "/api/contact";
+}
+
 export function getCaptchaApiUrl() {
   const base = getApiBaseUrl();
   return base ? `${base}/api/captcha` : "/api/captcha";

@@ -10,19 +10,22 @@ export function PrivacyContent() {
       </p>
       <h2>Data we collect</h2>
       <p>
-        When you submit an add or edit request, we collect your name, email address, company details,
-        message content, and technical metadata (such as IP address for abuse prevention).
+        When you submit an add or edit request, feedback, or a contact message, we collect your name,
+        email address, message content, and technical metadata (such as IP address for abuse prevention).
+        Company details are collected on add or edit requests.
       </p>
       <h2>How we use data</h2>
       <p>
         Submitted data is used to review catalog changes, respond to you, improve the directory, and
-        prevent spam or abuse. Feedback you share on the feedback form helps us improve the site for
-        other job seekers.
+        prevent spam or abuse. Feedback you share helps us improve the site for other job seekers.
+        Contact messages are used to answer questions, handle privacy requests, and respond to
+        partnership inquiries.
       </p>
       <h2>Catalog update emails</h2>
       <p>
         If you opt in on Submit request, we may email you when companies are verified or updated, with
-        details of what was added or changed. Contact us via Submit request to opt out.
+        details of what was added or changed. Contact us via the{" "}
+        <Link href="/contact">Contact</Link> form to opt out.
       </p>
       <h2>Cookies and similar technologies</h2>
       <p>
@@ -55,12 +58,13 @@ export function PrivacyContent() {
       </p>
       <h2>Your rights</h2>
       <p>
-        For access or deletion requests related to your submission, email the address listed in{" "}
-        <Link href="/brief">The Brief</Link> or submit another request via{" "}
-        <Link href="/submit">Submit request</Link> with your details.
+        For access or deletion requests related to your submission, use the{" "}
+        <Link href="/contact">Contact</Link> form (topic: Privacy or data request) or send another
+        request via <Link href="/submit">Submit request</Link> with your details.
       </p>
       <p className="policy-nav-links">
-        <Link href="/">Back to home</Link> · <Link href="/terms-and-conditions">Terms and Conditions</Link>
+        <Link href="/">Back to home</Link> · <Link href="/about">About</Link> ·{" "}
+        <Link href="/contact">Contact</Link> · <Link href="/terms-and-conditions">Terms and Conditions</Link>
       </p>
     </section>
   );
@@ -101,7 +105,8 @@ export function TermsContent() {
         or losses resulting from outdated catalog data.
       </p>
       <p className="policy-nav-links">
-        <Link href="/">Back to home</Link> · <Link href="/privacy-policy">Privacy Policy</Link>
+        <Link href="/">Back to home</Link> · <Link href="/about">About</Link> ·{" "}
+        <Link href="/contact">Contact</Link> · <Link href="/privacy-policy">Privacy Policy</Link>
       </p>
     </section>
   );

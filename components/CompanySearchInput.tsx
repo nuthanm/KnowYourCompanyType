@@ -117,7 +117,19 @@ export function CompanySearchInput({
       {showDropdown && (
         <div className="company-search-dropdown">
           {suggestions.length === 0 ? (
-            <p className="company-search-empty">No companies match “{value.trim()}”.</p>
+            <div className="company-search-empty">
+              <p>No companies match “{value.trim()}”.</p>
+              <Link
+                href={`/submit?company=${encodeURIComponent(value.trim())}`}
+                className="company-search-submit-cta"
+                onClick={() => setOpen(false)}
+              >
+                Submit request
+              </Link>
+              <p className="company-search-empty-hint">
+                Ask us to research and add this company — the name will be filled in for you.
+              </p>
+            </div>
           ) : (
             <>
               <p className="company-search-summary">
@@ -152,7 +164,7 @@ export function CompanySearchInput({
               </ul>
             </>
           )}
-          {CATALOG_PROGRESS.inProgress + CATALOG_PROGRESS.unverified > 0 && (
+          {CATALOG_PROGRESS.inProgress + CATALOG_PROGRESS.unverified > 0 && suggestions.length > 0 && (
             <p className="company-search-hint">
               Directory lists <strong>{CATALOG_PROGRESS.verified} verified</strong> companies.
               Search also finds{" "}
