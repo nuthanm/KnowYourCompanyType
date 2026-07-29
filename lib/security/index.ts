@@ -1,5 +1,5 @@
 export * from "./rate-limit";
 export * from "./anti-bot";
-export * from "./turnstile";
+export * from "./math-captcha";
 export * from "./sanitize";
 export * from "./mailer";

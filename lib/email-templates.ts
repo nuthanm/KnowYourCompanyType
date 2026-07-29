@@ -1,7 +1,8 @@
 import { DATA_YEAR } from "./companies";
 import { helpedLabel } from "./feedback-store";
 import { escapeHtml } from "./security/sanitize";
-import { EMAIL_FOOTER, getSiteUrl, SITE_NAME } from "./site-meta";
+import { createQueueAcceptToken } from "./security/queue-token";
+import { EMAIL_FOOTER, getApiPublicUrl, getCatalogUrl, getSiteUrl, SITE_NAME } from "./site-meta";
 import type { FeedbackInput, SubmissionInput } from "./validators";
 
 function emailShell(title: string, bodyHtml: string) {
@@ -31,8 +32,24 @@ function textFooter() {
   ].join("\n");
 }
 
+function buildAddToQueueUrl(input: SubmissionInput & { id: string }) {
+  const token = createQueueAcceptToken({
+    id: input.id,
+    companyName: input.companyName,
+    companySlug: input.companySlug,
+    website: input.website || undefined,
+    requestType: input.requestType,
+    message: input.message,
+    submitterName: input.submitterName,
+    submitterEmail: input.submitterEmail,
+  });
+  return `${getApiPublicUrl()}/api/submissions/queue/accept?token=${encodeURIComponent(token)}`;
+}
+
 export function buildAdminEmail(input: SubmissionInput & { id: string }) {
   const site = getSiteUrl();
+  const catalog = getCatalogUrl();
+  const addToQueueUrl = buildAddToQueueUrl(input);
   const subject = `[Know Your Company Type] ${input.requestType === "add" ? "Add" : "Edit"} request: ${input.companyName}`;
   const lines = [
     `New ${input.requestType} request for the ${DATA_YEAR} catalog.`,
@@ -48,7 +65,9 @@ export function buildAdminEmail(input: SubmissionInput & { id: string }) {
     "Message:",
     input.message,
     "",
-    `Review: ${site}/submit`,
+    `Add to review queue: ${addToQueueUrl}`,
+    `Review queue: ${catalog}/coming-soon/`,
+    `Submit form: ${site}/submit`,
     textFooter(),
   ].filter(Boolean);
 
@@ -63,6 +82,15 @@ export function buildAdminEmail(input: SubmissionInput & { id: string }) {
       <p><strong>Submitter:</strong> ${escapeHtml(input.submitterName)} (${escapeHtml(input.submitterEmail)})</p>
       ${input.subscribeToUpdates ? "<p><strong>Update alerts:</strong> Yes — add to subscriber list after review.</p>" : ""}
       <pre style="white-space:pre-wrap;font-family:inherit;background:#f7f5f0;padding:12px;border-radius:8px">${escapeHtml(input.message)}</pre>
+      <p style="margin:20px 0 8px">
+        <a href="${escapeHtml(addToQueueUrl)}" style="display:inline-block;background:#0a66c2;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:600">
+          Add ${escapeHtml(input.companyName)} to review queue
+        </a>
+      </p>
+      <p style="font-size:12px;color:#737373;margin:0">
+        Opens the review queue and lists this company as pending.
+        <a href="${escapeHtml(catalog)}/coming-soon/" style="color:#0a66c2">View queue</a>
+      </p>
     `,
   );
 

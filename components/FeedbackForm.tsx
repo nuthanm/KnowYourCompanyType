@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { FormActions } from "@/components/FormLayout";
 import { feedbackSchema, type FeedbackInput } from "@/lib/validators";
 import { getFeedbackApiUrl } from "@/lib/site-meta";
-import { requiresTurnstile, TurnstileField } from "./TurnstileField";
+import { MathCaptchaField } from "./MathCaptchaField";
 
 const HELPED_OPTIONS: Array<{ value: FeedbackInput["helped"]; label: string }> = [
   { value: "yes", label: "Yes — helped me pick the right company type" },
@@ -17,6 +17,8 @@ const HELPED_OPTIONS: Array<{ value: FeedbackInput["helped"]; label: string }> =
 
 export function FeedbackForm() {
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaError, setCaptchaError] = useState("");
   const [captchaResetKey, setCaptchaResetKey] = useState(0);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -38,10 +40,22 @@ export function FeedbackForm() {
   async function onSubmit(values: FeedbackInput) {
     setStatus("loading");
     setErrorMessage("");
+    setCaptchaError("");
 
-    if (requiresTurnstile() && !captchaToken) {
+    if (!captchaToken) {
       setStatus("error");
-      setErrorMessage("Complete the CAPTCHA before submitting.");
+      setCaptchaError("CAPTCHA token is missing. Please refresh.");
+      return;
+    }
+    if (!captchaAnswer.trim()) {
+      setStatus("error");
+      setCaptchaError("Please answer the CAPTCHA question.");
+      return;
+    }
+    const answer = Number(captchaAnswer);
+    if (!Number.isFinite(answer)) {
+      setStatus("error");
+      setCaptchaError("CAPTCHA answer must be a number.");
       return;
     }
 
@@ -51,7 +65,8 @@ export function FeedbackForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
-          turnstileToken: captchaToken || undefined,
+          captchaToken,
+          captchaAnswer: answer,
         }),
       });
       const json = (await res.json()) as { ok?: boolean; error?: string };
@@ -62,8 +77,9 @@ export function FeedbackForm() {
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Unable to submit feedback.");
-      setCaptchaResetKey((k) => k + 1);
+      setCaptchaAnswer("");
       setCaptchaToken("");
+      setCaptchaResetKey((k) => k + 1);
     }
   }
 
@@ -132,10 +148,12 @@ export function FeedbackForm() {
       </label>
       {errors.acceptPolicy && <p className="form-error">{errors.acceptPolicy.message}</p>}
 
-      <TurnstileField
+      <MathCaptchaField
+        answer={captchaAnswer}
+        onAnswerChange={setCaptchaAnswer}
+        onTokenChange={setCaptchaToken}
         resetKey={captchaResetKey}
-        onToken={setCaptchaToken}
-        onLoadError={(msg) => setErrorMessage(msg)}
+        error={captchaError}
       />
 
       {errorMessage && <p className="form-error banner">{errorMessage}</p>}

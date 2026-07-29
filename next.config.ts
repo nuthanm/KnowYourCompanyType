@@ -15,12 +15,12 @@ const baseSecurityHeaders = [
 
 const productionCsp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://pagead2.googlesyndication.com https://www.googletagmanager.com",
+  "script-src 'self' 'unsafe-inline' https://pagead2.googlesyndication.com https://www.googletagmanager.com",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self' data:",
-  "connect-src 'self' https://challenges.cloudflare.com https://pagead2.googlesyndication.com",
-  "frame-src https://challenges.cloudflare.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
+  "connect-src 'self' https://pagead2.googlesyndication.com",
+  "frame-src https://googleads.g.doubleclick.net https://tpc.googlesyndication.com",
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'none'",

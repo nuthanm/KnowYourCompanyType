@@ -6,7 +6,7 @@ import { isBotLikeSubmission } from "@/lib/security/anti-bot";
 import { sendMail, isMailerConfigured } from "@/lib/security/mailer";
 import { checkRateLimitAsync, getRequestIp } from "@/lib/security/rate-limit";
 import { hasSuspiciousInput, sanitizeMultiline, sanitizeText } from "@/lib/security/sanitize";
-import { verifyTurnstileToken } from "@/lib/security/turnstile";
+import { verifyCaptchaToken } from "@/lib/security/math-captcha";
 
 type SubmitOptions<T extends ZodType> = {
   request: Request;
@@ -26,6 +26,11 @@ function sanitizeSubmissionBody<T extends Record<string, unknown>>(body: T) {
     }
   }
   return next as T;
+}
+
+function getUserRecipientEmail(input: Record<string, unknown>) {
+  const email = input.submitterEmail ?? input.email;
+  return typeof email === "string" ? email.trim() : "";
 }
 
 export async function handleFormSubmit<T extends ZodType>(options: SubmitOptions<T>) {
@@ -55,7 +60,8 @@ export async function handleFormSubmit<T extends ZodType>(options: SubmitOptions
   const input = parsed.data as z.infer<T> & {
     websiteField?: string;
     formStartedAt?: number;
-    turnstileToken?: string;
+    captchaToken?: string;
+    captchaAnswer?: number;
     message?: string;
     submitterEmail?: string;
   };
@@ -64,8 +70,8 @@ export async function handleFormSubmit<T extends ZodType>(options: SubmitOptions
     return jsonResponse({ ok: false, error: "Unable to submit request." }, options.request, { status: 400 });
   }
 
-  const turnstile = await verifyTurnstileToken(input.turnstileToken, ip);
-  if (!turnstile.ok) {
+  const captchaOk = verifyCaptchaToken(input.captchaToken, input.captchaAnswer);
+  if (!captchaOk) {
     return jsonResponse({ ok: false, error: "CAPTCHA verification failed." }, options.request, { status: 400 });
   }
 
@@ -87,14 +93,19 @@ export async function handleFormSubmit<T extends ZodType>(options: SubmitOptions
   }
 
   if (isMailerConfigured()) {
-    const adminTo = process.env.MAIL_TO?.trim();
-    if (adminTo) {
-      const adminEmail = options.buildAdmin(record);
-      await sendMail({ to: adminTo, ...adminEmail });
-    }
-    if (input.submitterEmail) {
-      const userEmail = options.buildUser(record);
-      await sendMail({ to: input.submitterEmail, ...userEmail });
+    try {
+      const adminTo = process.env.MAIL_TO?.trim();
+      if (adminTo) {
+        const adminEmail = options.buildAdmin(record);
+        await sendMail({ to: adminTo, ...adminEmail });
+      }
+      const userEmailAddress = getUserRecipientEmail(record as Record<string, unknown>);
+      if (userEmailAddress) {
+        const userEmail = options.buildUser(record);
+        await sendMail({ to: userEmailAddress, ...userEmail });
+      }
+    } catch (error) {
+      console.error("Mail send failed:", error);
     }
   }
 

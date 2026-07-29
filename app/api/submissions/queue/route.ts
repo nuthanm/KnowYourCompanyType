@@ -1,12 +1,36 @@
 import { jsonResponse, corsPreflightResponse } from "@/lib/api/cors";
+import { verifyMailBannerToken } from "@/lib/security/queue-token";
 import { isDatabaseConfigured, listQueueSubmissions } from "@/lib/submissions";
+import { isPendingJsonConfigured } from "@/lib/pending-queue-store";
 
 export async function OPTIONS(request: Request) {
   return corsPreflightResponse(request);
 }
 
 export async function GET(request: Request) {
-  if (!isDatabaseConfigured()) {
+  const url = new URL(request.url);
+  const bannerToken = url.searchParams.get("banner");
+
+  // Mail-only banner check: used by coming-soon to show "<Company> added in the queue"
+  if (bannerToken) {
+    const verified = verifyMailBannerToken(bannerToken);
+    if (!verified) {
+      return jsonResponse({ ok: false, error: "Banner token invalid or expired." }, request, {
+        status: 400,
+      });
+    }
+    return jsonResponse(
+      {
+        ok: true,
+        fromMail: true,
+        companyName: verified.companyName,
+        id: verified.id,
+      },
+      request,
+    );
+  }
+
+  if (!isDatabaseConfigured() && !isPendingJsonConfigured()) {
     return jsonResponse({ ok: true, items: [] }, request);
   }
 

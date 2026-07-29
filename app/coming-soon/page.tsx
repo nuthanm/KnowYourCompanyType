@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AppShell } from "@/components/AppShell";
 import { FormPageHeader, FormPanel } from "@/components/FormLayout";
 import { PipelineQueue } from "@/components/PipelineQueue";
@@ -27,7 +28,9 @@ export default function ComingSoonPage() {
         />
 
         <FormPanel>
-          <PipelineQueue />
+          <Suspense fallback={<p className="pipeline-loading">Loading review queue…</p>}>
+            <PipelineQueue />
+          </Suspense>
         </FormPanel>
       </div>
     </AppShell>

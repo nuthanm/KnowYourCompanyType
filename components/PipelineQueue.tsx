@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   ALL_COMPANY_SLUGS,
   CATALOG_PROGRESS,
@@ -115,8 +116,10 @@ function StatTile({ label, value, detail, status, active, onClick }: StatTilePro
 }
 
 export function PipelineQueue() {
+  const searchParams = useSearchParams();
   const staticEntries = useMemo(() => buildPipelineEntries(), []);
   const [communityEntries, setCommunityEntries] = useState<CompanySearchEntry[]>([]);
+  const [mailBannerCompany, setMailBannerCompany] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -136,6 +139,62 @@ export function PipelineQueue() {
       active = false;
     };
   }, []);
+
+  // Banner only when arriving from the admin email "Add to queue" link
+  useEffect(() => {
+    const fromMail = searchParams.get("from") === "mail";
+    const bannerToken = searchParams.get("banner");
+    if (!fromMail || !bannerToken) return;
+
+    let active = true;
+    const verifyUrl = `${getQueueApiUrl()}?banner=${encodeURIComponent(bannerToken)}`;
+
+    void fetch(verifyUrl, { method: "GET" })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return (await res.json()) as {
+          ok?: boolean;
+          fromMail?: boolean;
+          companyName?: string;
+          id?: string;
+        };
+      })
+      .then((json) => {
+        if (!active || !json?.ok || !json.fromMail || !json.companyName) return;
+        setMailBannerCompany(json.companyName);
+        if (json.id) {
+          setCommunityEntries((prev) => {
+            if (prev.some((entry) => entry.submissionId === json.id || entry.name === json.companyName)) {
+              return prev;
+            }
+            const slug = json
+              .companyName!.toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, "");
+            return [
+              communityToEntry({
+                id: json.id!,
+                slug,
+                name: json.companyName!,
+                requestType: "add",
+                note: "Added from admin email approval",
+                submittedAt: new Date().toISOString(),
+              }),
+              ...prev,
+            ];
+          });
+        }
+        const url = new URL(window.location.href);
+        url.searchParams.delete("from");
+        url.searchParams.delete("banner");
+        window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      })
+      .catch(() => undefined);
+
+    return () => {
+      active = false;
+    };
+  }, [searchParams]);
 
   const allEntries = useMemo(
     () => [...staticEntries, ...communityEntries].sort((a, b) => a.name.localeCompare(b.name)),
@@ -194,10 +253,22 @@ export function PipelineQueue() {
     return `/companies/${entry.slug}`;
   }
 
-  if (totalInQueue === 0) return null;
-
   return (
     <section className="pipeline-dashboard" aria-labelledby="pipeline-dashboard-title">
+      {mailBannerCompany && (
+        <div className="queue-mail-banner" role="status">
+          <strong>{mailBannerCompany}</strong> added in the queue
+          <button
+            type="button"
+            className="queue-mail-banner-dismiss"
+            aria-label="Dismiss"
+            onClick={() => setMailBannerCompany(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <div className="pipeline-dashboard-head">
         <h2 id="pipeline-dashboard-title">Review queue</h2>
         <p>

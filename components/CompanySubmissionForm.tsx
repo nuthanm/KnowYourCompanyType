@@ -8,7 +8,7 @@ import { FormActions } from "@/components/FormLayout";
 import { COMPANIES, slugifyCompanyName } from "@/lib/companies";
 import { getSubmitApiUrl } from "@/lib/site-meta";
 import { submissionSchema, type SubmissionInput } from "@/lib/validators";
-import { requiresTurnstile, TurnstileField } from "./TurnstileField";
+import { MathCaptchaField } from "./MathCaptchaField";
 
 type FormValues = SubmissionInput;
 
@@ -20,6 +20,8 @@ export function CompanySubmissionForm({
   initialCompanyName?: string;
 }) {
   const [captchaToken, setCaptchaToken] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaError, setCaptchaError] = useState("");
   const [captchaResetKey, setCaptchaResetKey] = useState(0);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -50,10 +52,22 @@ export function CompanySubmissionForm({
   async function onSubmit(values: FormValues) {
     setStatus("loading");
     setErrorMessage("");
+    setCaptchaError("");
 
-    if (requiresTurnstile() && !captchaToken) {
+    if (!captchaToken) {
       setStatus("error");
-      setErrorMessage("Complete the CAPTCHA before submitting.");
+      setCaptchaError("CAPTCHA token is missing. Please refresh.");
+      return;
+    }
+    if (!captchaAnswer.trim()) {
+      setStatus("error");
+      setCaptchaError("Please answer the CAPTCHA question.");
+      return;
+    }
+    const answer = Number(captchaAnswer);
+    if (!Number.isFinite(answer)) {
+      setStatus("error");
+      setCaptchaError("CAPTCHA answer must be a number.");
       return;
     }
 
@@ -63,8 +77,8 @@ export function CompanySubmissionForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...values,
-          turnstileToken: captchaToken || undefined,
-          websiteField: values.websiteField,
+          captchaToken,
+          captchaAnswer: answer,
         }),
       });
       const json = (await res.json()) as { ok?: boolean; error?: string };
@@ -75,8 +89,9 @@ export function CompanySubmissionForm({
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Unable to submit request.");
-      setCaptchaResetKey((k) => k + 1);
+      setCaptchaAnswer("");
       setCaptchaToken("");
+      setCaptchaResetKey((k) => k + 1);
     }
   }
 
@@ -215,10 +230,12 @@ export function CompanySubmissionForm({
       </label>
       {errors.acceptPolicy && <p className="form-error">{errors.acceptPolicy.message}</p>}
 
-      <TurnstileField
+      <MathCaptchaField
+        answer={captchaAnswer}
+        onAnswerChange={setCaptchaAnswer}
+        onTokenChange={setCaptchaToken}
         resetKey={captchaResetKey}
-        onToken={setCaptchaToken}
-        onLoadError={(msg) => setErrorMessage(msg)}
+        error={captchaError}
       />
 
       {errorMessage && <p className="form-error banner">{errorMessage}</p>}

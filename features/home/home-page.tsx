@@ -58,7 +58,7 @@ export function HomePage() {
     <div className="landing-page">
       <section className="landing-hero">
         <div className="landing-hero-copy">
-          <span className="landing-eyebrow">India company directory · {DATA_YEAR}</span>
+          <span className="landing-eyebrow">Company directory · {DATA_YEAR}</span>
           <h1>
             Know if a company is product or service
             <span>before you apply</span>

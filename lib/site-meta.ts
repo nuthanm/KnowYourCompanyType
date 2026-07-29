@@ -12,8 +12,23 @@ export function getSiteUrl(fallback = "http://localhost:3000") {
   return (process.env.NEXT_PUBLIC_SITE_URL || fallback).replace(/\/$/, "");
 }
 
+/** Public catalog (GitHub Pages) — where coming-soon and browse live. */
+export function getCatalogUrl() {
+  const catalog = process.env.NEXT_PUBLIC_CATALOG_URL?.trim();
+  if (catalog) return catalog.replace(/\/$/, "");
+  return getSiteUrl();
+}
+
 export function getApiBaseUrl() {
   return process.env.NEXT_PUBLIC_SUBMIT_API_URL?.trim().replace(/\/$/, "") || "";
+}
+
+/** Absolute API host for email action links (accept-to-queue, etc.). */
+export function getApiPublicUrl() {
+  const configured = getApiBaseUrl();
+  if (configured) return configured;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`;
+  return getSiteUrl();
 }
 
 export function getSubmitApiUrl() {

@@ -75,36 +75,63 @@ export async function saveSubmission(input: SubmissionInput & { id: string }) {
       ${input.submitterEmail},
       ${input.message}
     )
+    ON CONFLICT (id) DO UPDATE SET
+      request_type = EXCLUDED.request_type,
+      company_name = EXCLUDED.company_name,
+      company_slug = EXCLUDED.company_slug,
+      website = EXCLUDED.website,
+      message = EXCLUDED.message,
+      status = 'pending',
+      updated_at = NOW()
   `;
   return { stored: true as const };
 }
 
+export async function enqueueSubmissionFromMail(
+  input: SubmissionInput & { id: string },
+): Promise<{ stored: boolean; item: QueueSubmissionItem }> {
+  const slug = resolveSubmissionSlug(input);
+  const item: QueueSubmissionItem = {
+    id: input.id,
+    slug,
+    name: input.companyName.trim(),
+    requestType: input.requestType,
+    note: buildQueueNote(input),
+    submittedAt: new Date().toISOString(),
+    website: input.website?.trim() || undefined,
+  };
+
+  const dbResult = await saveSubmission(input);
+  const { upsertPendingQueueJson } = await import("@/lib/pending-queue-store");
+  const jsonResult = await upsertPendingQueueJson(item);
+
+  return { stored: dbResult.stored || jsonResult.stored, item };
+}
+
 export async function listQueueSubmissions() {
   const db = getSql();
-  if (!db) return [] as QueueSubmissionItem[];
+  const dbItems: QueueSubmissionItem[] = [];
 
-  const rows = await db<
-    Array<{
-      id: string;
-      request_type: "add" | "edit";
-      company_name: string;
-      company_slug: string | null;
-      website: string | null;
-      message: string;
-      created_at: Date;
-    }>
-  >`
-    SELECT id, request_type, company_name, company_slug, website, message, created_at
-    FROM company_submissions
-    WHERE status = 'pending'
-    ORDER BY created_at DESC
-    LIMIT 200
-  `;
+  if (db) {
+    const rows = await db<
+      Array<{
+        id: string;
+        request_type: "add" | "edit";
+        company_name: string;
+        company_slug: string | null;
+        website: string | null;
+        message: string;
+        created_at: Date;
+      }>
+    >`
+      SELECT id, request_type, company_name, company_slug, website, message, created_at
+      FROM company_submissions
+      WHERE status = 'pending'
+      ORDER BY created_at DESC
+      LIMIT 200
+    `;
 
-  const seen = new Set<string>();
-
-  return rows
-    .map((row) => {
+    for (const row of rows) {
       const slug = row.company_slug?.trim() || slugifyCompanyName(row.company_name);
       const input = {
         requestType: row.request_type,
@@ -113,7 +140,7 @@ export async function listQueueSubmissions() {
         message: row.message,
       } as SubmissionInput;
 
-      return {
+      dbItems.push({
         id: row.id,
         slug,
         name: row.company_name.trim(),
@@ -121,19 +148,31 @@ export async function listQueueSubmissions() {
         note: buildQueueNote(input),
         submittedAt: row.created_at.toISOString(),
         website: row.website?.trim() || undefined,
-      } satisfies QueueSubmissionItem;
-    })
-    .filter((item) => {
-      if (!item.slug || item.slug === "unknown") return false;
-      if (VERIFIED_SLUGS.has(item.slug)) return false;
-      if (item.requestType === "edit" && !STATIC_PIPELINE_SLUGS.has(item.slug) && !ALL_COMPANY_SLUGS.includes(item.slug)) {
-        return false;
-      }
-      if (STATIC_PIPELINE_SLUGS.has(item.slug)) return false;
-      if (seen.has(item.slug)) return false;
-      seen.add(item.slug);
-      return true;
-    });
+      });
+    }
+  }
+
+  const { readPendingQueueJson } = await import("@/lib/pending-queue-store");
+  const jsonItems = await readPendingQueueJson();
+
+  const seen = new Set<string>();
+  const merged = [...jsonItems, ...dbItems].filter((item) => {
+    if (!item.slug || item.slug === "unknown") return false;
+    if (VERIFIED_SLUGS.has(item.slug)) return false;
+    if (
+      item.requestType === "edit" &&
+      !STATIC_PIPELINE_SLUGS.has(item.slug) &&
+      !ALL_COMPANY_SLUGS.includes(item.slug)
+    ) {
+      return false;
+    }
+    if (STATIC_PIPELINE_SLUGS.has(item.slug)) return false;
+    if (seen.has(item.slug)) return false;
+    seen.add(item.slug);
+    return true;
+  });
+
+  return merged;
 }
 
 export { buildAdminEmail, buildUserConfirmationEmail };

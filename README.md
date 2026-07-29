@@ -34,7 +34,7 @@ flowchart TB
 
   subgraph API["Submit API (Vercel / Node)"]
     POST["POST /api/submissions"]
-    RL["Rate limit + Turnstile"]
+    RL["Rate limit + Math CAPTCHA"]
     SMTP["Gmail SMTP"]
     DB[("PostgreSQL optional")]
   end
@@ -146,7 +146,7 @@ Set repository variable **`SUBMIT_API_URL`** (e.g. your Vercel app URL) so the s
 | Variable | Purpose |
 |----------|---------|
 | `SMTP_*`, `MAIL_TO` | Gmail App Password + admin inbox |
-| `TURNSTILE_*` | Bot protection |
+| `CAPTCHA_SECRET` | Math CAPTCHA HMAC secret |
 | `DATABASE_URL` | Optional — store submissions in PostgreSQL |
 | `NEXT_PUBLIC_SUBMIT_API_URL` | Set on Pages build only (GitHub variable) |
 
@@ -175,13 +175,14 @@ Run DB migration: [`db/submissions.sql`](db/submissions.sql)
 | `/feedback` | Career research feedback |
 | `/privacy-policy`, `/terms-and-conditions` | Legal |
 | `/api/submissions` | POST handler (server deploy only) |
+| `/api/captcha` | GET math CAPTCHA challenge (server deploy only) |
 | `/api/submissions/queue` | GET pending portal requests for review queue (server deploy only) |
 
 ---
 
 ## Standards
 
-Aligned with [aidevreference](https://github.com/nuthanm/aidevreference): Turnstile, honeypot, rate limits, sanitization, cookie consent, AdSense `ads.txt`, CSP in production (disabled in dev for Turbopack).
+Aligned with [aidevreference](https://github.com/nuthanm/aidevreference): Math CAPTCHA, honeypot, rate limits, sanitization, cookie consent, AdSense `ads.txt`, CSP in production (disabled in dev for Turbopack).
 
 ---
 

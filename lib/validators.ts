@@ -12,7 +12,8 @@ export const submissionSchema = z.object({
   acceptPolicy: z
     .boolean({ message: "You must accept the Privacy Policy and Terms" })
     .refine((v) => v === true, { message: "You must accept the Privacy Policy and Terms" }),
-  turnstileToken: z.string().optional(),
+  captchaToken: z.string().optional(),
+  captchaAnswer: z.number().optional(),
   websiteField: z.string().optional(),
   formStartedAt: z.number().optional(),
 });
@@ -25,7 +26,8 @@ export const feedbackSchema = z.object({
   acceptPolicy: z
     .boolean({ message: "You must accept the Privacy Policy and Terms" })
     .refine((v) => v === true, { message: "You must accept the Privacy Policy and Terms" }),
-  turnstileToken: z.string().optional(),
+  captchaToken: z.string().optional(),
+  captchaAnswer: z.number().optional(),
   websiteField: z.string().optional(),
   formStartedAt: z.number().optional(),
 });

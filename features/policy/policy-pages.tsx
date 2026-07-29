@@ -49,9 +49,9 @@ export function PrivacyContent() {
       </p>
       <h2>Third parties</h2>
       <p>
-        We use providers as needed to operate the service: SMTP (Gmail-compatible) for email, Cloudflare
-        Turnstile for CAPTCHA, hosting infrastructure, PostgreSQL for optional request storage, and —
-        when enabled — Google advertising services.
+        We use providers as needed to operate the service: SMTP (Gmail-compatible) for email, a
+        first-party math CAPTCHA for abuse prevention, hosting infrastructure, PostgreSQL for optional
+        request storage, and — when enabled — Google advertising services.
       </p>
       <h2>Your rights</h2>
       <p>

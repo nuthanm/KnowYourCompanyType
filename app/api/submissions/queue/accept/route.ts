@@ -1,0 +1,49 @@
+import { corsPreflightResponse } from "@/lib/api/cors";
+import {
+  createMailBannerToken,
+  verifyQueueAcceptToken,
+} from "@/lib/security/queue-token";
+import { getCatalogUrl } from "@/lib/site-meta";
+import { enqueueSubmissionFromMail, resolveSubmissionSlug } from "@/lib/submissions";
+
+export async function OPTIONS(request: Request) {
+  return corsPreflightResponse(request);
+}
+
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const token = url.searchParams.get("token");
+  const payload = verifyQueueAcceptToken(token);
+
+  if (!payload) {
+    return new Response("This queue link is invalid or has expired.", {
+      status: 400,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
+  }
+
+  const slug = payload.companySlug?.trim() || resolveSubmissionSlug({
+    companyName: payload.companyName,
+    companySlug: payload.companySlug,
+  });
+
+  await enqueueSubmissionFromMail({
+    id: payload.id,
+    requestType: payload.requestType,
+    companyName: payload.companyName,
+    companySlug: slug,
+    website: payload.website || "",
+    submitterName: payload.submitterName,
+    submitterEmail: payload.submitterEmail,
+    message: payload.message,
+    acceptPolicy: true,
+  });
+
+  const bannerToken = createMailBannerToken(payload.companyName, payload.id);
+  const catalog = getCatalogUrl();
+  const redirectTo = new URL(`${catalog}/coming-soon/`);
+  redirectTo.searchParams.set("from", "mail");
+  redirectTo.searchParams.set("banner", bannerToken);
+
+  return Response.redirect(redirectTo.toString(), 302);
+}
