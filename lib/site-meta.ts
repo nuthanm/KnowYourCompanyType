@@ -46,6 +46,11 @@ export function getFeedbackApiUrl() {
   return base ? `${base}/api/feedback` : "/api/feedback";
 }
 
+export function getCaptchaApiUrl() {
+  const base = getApiBaseUrl();
+  return base ? `${base}/api/captcha` : "/api/captcha";
+}
+
 export const DATA_ACCURACY_NOTICE = {
   title: "About this data",
   body: "We publish only verified, source-linked company profiles from public pages. Figures reflect the current catalog year and may change as companies grow, restructure, or update policies.",

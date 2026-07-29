@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { getCaptchaApiUrl } from "@/lib/site-meta";
 
 type CaptchaState =
   | { status: "loading" }
@@ -8,7 +9,7 @@ type CaptchaState =
   | { status: "error"; message: string };
 
 async function fetchCaptcha(): Promise<{ challenge: string; token: string }> {
-  const res = await fetch("/api/captcha", { method: "GET", headers: { Accept: "application/json" } });
+  const res = await fetch(getCaptchaApiUrl(), { method: "GET", headers: { Accept: "application/json" } });
   if (!res.ok) throw new Error("Unable to load CAPTCHA challenge.");
   const json = (await res.json()) as { ok?: boolean; challenge?: string; token?: string };
   if (!json.ok || !json.challenge || !json.token) throw new Error("CAPTCHA challenge is invalid.");
