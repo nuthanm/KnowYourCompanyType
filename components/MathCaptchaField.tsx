@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCaptchaApiUrl } from "@/lib/site-meta";
 
 type CaptchaState =
@@ -30,24 +30,57 @@ export function MathCaptchaField({
   error?: string;
 }) {
   const [state, setState] = useState<CaptchaState>({ status: "loading" });
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
   const onTokenChangeRef = useRef(onTokenChange);
-  onTokenChangeRef.current = onTokenChange;
 
-  const load = useCallback(async () => {
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
+    setState({ status: "loading" });
+  }
+
+  useEffect(() => {
+    onTokenChangeRef.current = onTokenChange;
+  }, [onTokenChange]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function run() {
+      try {
+        const { challenge, token } = await fetchCaptcha();
+        if (cancelled) return;
+        setState({ status: "ready", challenge, token });
+        onTokenChangeRef.current(token);
+      } catch {
+        if (cancelled) return;
+        setState({
+          status: "error",
+          message: "CAPTCHA is unavailable right now. Please refresh and try again.",
+        });
+        onTokenChangeRef.current("");
+      }
+    }
+
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [resetKey]);
+
+  async function load() {
     setState({ status: "loading" });
     try {
       const { challenge, token } = await fetchCaptcha();
       setState({ status: "ready", challenge, token });
       onTokenChangeRef.current(token);
     } catch {
-      setState({ status: "error", message: "CAPTCHA is unavailable right now. Please refresh and try again." });
+      setState({
+        status: "error",
+        message: "CAPTCHA is unavailable right now. Please refresh and try again.",
+      });
       onTokenChangeRef.current("");
     }
-  }, []);
-
-  useEffect(() => {
-    void load();
-  }, [load, resetKey]);
+  }
 
   const challenge = state.status === "ready" ? state.challenge : null;
 

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  CATALOG_PROGRESS,
   CATALOG_UPDATED,
   CATEGORY_COUNTS,
   CATEGORY_LABELS,
