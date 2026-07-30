@@ -18,10 +18,8 @@ const STATIC_PATHS: { path: string; changeFrequency: MetadataRoute.Sitemap[numbe
 ];
 
 function toUrl(base: string, path: string) {
-  const trailing = process.env.STATIC_EXPORT === "true";
   const normalized = path === "" ? "/" : path;
-  const withSlash = trailing && normalized !== "/" ? `${normalized}/` : normalized;
-  return `${base}${withSlash === "/" ? "/" : withSlash}`;
+  return `${base}${normalized === "/" ? "/" : normalized}`;
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {

@@ -17,9 +17,7 @@ jobs:
           node-version: "24"
           cache: npm
       - run: npm ci
-      - run: npm run build:pages
+      - run: npm run build
         env:
-          NEXT_PUBLIC_BASE_PATH: ""
           NEXT_PUBLIC_SITE_URL: https://knowyourithub.com
-          NEXT_PUBLIC_SUBMIT_API_URL: ${{ vars.SUBMIT_API_URL }}
       - run: npm run lint

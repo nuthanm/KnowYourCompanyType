@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === "production";
-const staticExport = process.env.STATIC_EXPORT === "true";
 
 const baseSecurityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -26,33 +25,22 @@ const productionCsp = [
   "frame-ancestors 'none'",
 ].join("; ");
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
 const nextConfig: NextConfig = {
-  ...(staticExport ? { output: "export" as const } : {}),
-  basePath: basePath || undefined,
-  assetPrefix: basePath || undefined,
   images: { unoptimized: true },
-  ...(!staticExport
-    ? {
-        async headers() {
-          const headers = [...baseSecurityHeaders];
-          if (isProd) {
-            headers.push({ key: "Content-Security-Policy", value: productionCsp });
-          }
-          return [{ source: "/(.*)", headers }];
-        },
-        async redirects() {
-          return [
-            { source: "/privacy", destination: "/privacy-policy", permanent: true },
-            { source: "/terms", destination: "/terms-and-conditions", permanent: true },
-            { source: "/prototype", destination: "/", permanent: false },
-          ];
-        },
-      }
-    : {
-        trailingSlash: true,
-      }),
+  async headers() {
+    const headers = [...baseSecurityHeaders];
+    if (isProd) {
+      headers.push({ key: "Content-Security-Policy", value: productionCsp });
+    }
+    return [{ source: "/(.*)", headers }];
+  },
+  async redirects() {
+    return [
+      { source: "/privacy", destination: "/privacy-policy", permanent: true },
+      { source: "/terms", destination: "/terms-and-conditions", permanent: true },
+      { source: "/prototype", destination: "/", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -12,7 +12,7 @@ export function getSiteUrl(fallback = "http://localhost:3000") {
   return (process.env.NEXT_PUBLIC_SITE_URL || fallback).replace(/\/$/, "");
 }
 
-/** Public catalog (GitHub Pages) — where coming-soon and browse live. */
+/** Public catalog URL — where coming-soon and browse live. */
 export function getCatalogUrl() {
   const catalog = process.env.NEXT_PUBLIC_CATALOG_URL?.trim();
   if (catalog) return catalog.replace(/\/$/, "");

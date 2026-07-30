@@ -2,7 +2,6 @@
 
 > Know your company type before you apply — verified, source-linked company profiles for job seekers and researchers.
 
-[![Pages](https://img.shields.io/github/actions/workflow/status/nuthanm/knowyourcompanytype/deploy-pages.yml?label=GitHub%20Pages&logo=github)](https://github.com/nuthanm/knowyourcompanytype/actions/workflows/deploy-pages.yml)
 [![CI](https://img.shields.io/github/actions/workflow/status/nuthanm/knowyourcompanytype/ci.yml?label=CI&logo=github)](https://github.com/nuthanm/knowyourcompanytype/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -27,12 +26,9 @@
 
 ```mermaid
 flowchart TB
-  subgraph Public["Public site (GitHub Pages)"]
-    UI["Next.js static export"]
+  subgraph App["Know Your IT Hub (Vercel)"]
+    UI["Next.js App Router"]
     JSON["data/companies.json"]
-  end
-
-  subgraph API["Submit API (Vercel / Node)"]
     POST["POST /api/submissions"]
     RL["Rate limit + Math CAPTCHA"]
     SMTP["Gmail SMTP"]
@@ -43,11 +39,11 @@ flowchart TB
     DRAFT["scripts/enrich-wikidata.mjs"]
     REVIEW["Manual review"]
     MERGE["Update companies.json"]
-    DEPLOY["Push → Pages rebuild"]
+    DEPLOY["Push → Vercel deploy"]
   end
 
   UI --> JSON
-  UI -->|NEXT_PUBLIC_SUBMIT_API_URL| POST
+  UI --> POST
   POST --> RL --> SMTP
   POST --> DB
   DRAFT --> REVIEW --> MERGE --> JSON --> DEPLOY
@@ -62,15 +58,15 @@ sequenceDiagram
   participant A as Admin email
   participant M as Maintainer
   participant J as data/companies.json
-  participant P as GitHub Pages
+  participant D as Vercel
 
   V->>S: POST add/edit request
   S->>A: Admin notification email
   S->>V: Confirmation email
   A->>M: Review against official sources
   M->>J: Merge verified profile
-  M->>P: Push main → static rebuild
-  P->>V: Updated catalog live
+  M->>D: Push main → deploy
+  D->>V: Updated catalog live
 ```
 
 ### Data sourcing workflow (no scraping of restricted sites)
@@ -89,7 +85,7 @@ flowchart LR
 | Draft from Wikidata | `npm run enrich:wikidata -- "Company Name" slug` |
 | Review draft | Check `data/drafts/slug.draft.json` against official site |
 | Publish | Merge into `data/companies.json`, set `category`, `sources`, `lastVerified` |
-| Deploy catalog | Push to `main` → GitHub Actions runs `build:pages` |
+| Deploy | Push to `main` → Vercel deploys |
 
 ---
 
@@ -121,34 +117,21 @@ npm run dev
 
 ---
 
-## Deploy (GitHub Pages + submit API)
+## Deploy (Vercel)
 
-**Catalog (static)** — GitHub Pages via [`deploy-pages.yml`](.github/workflows/deploy-pages.yml):
+Deploy the full Next.js app (UI + `app/api/*`) to **Vercel** with env vars from [`.env.example`](.env.example).
 
-```bash
-npm run build:pages
-# output in out/ — uploaded by Actions
-```
-
-**One-time GitHub setup (required):**
-
-1. Repo **Settings → Pages → Build and deployment → Source** → choose **GitHub Actions** (not “Deploy from a branch”).
-2. If you previously used “Deploy from branch / main / root”, GitHub serves `README.md` as the site — that is **not** the app.
-3. After pushing to `main`, open **Actions → Deploy to GitHub Pages** and confirm the workflow is green.
-4. Live URL: [`https://knowyourithub.com`](https://knowyourithub.com) (custom domain via `public/CNAME`; CI sets `NEXT_PUBLIC_SITE_URL` and empty `NEXT_PUBLIC_BASE_PATH`).
-
-**If you still see the README instead of the app:** the deploy workflow failed or Pages source is wrong. Check the red **GitHub Pages** / **CI** badges in this README on GitHub Actions.
-
-Set repository variable **`SUBMIT_API_URL`** (e.g. your Vercel app URL) so the static form posts to a live API.
-
-**Submit API (server)** — deploy the full Next app (with `app/api/submissions`) to **Vercel** with env vars from [`.env.example`](.env.example):
+Live URL: [`https://knowyourithub.com`](https://knowyourithub.com)
 
 | Variable | Purpose |
 |----------|---------|
+| `NEXT_PUBLIC_SITE_URL` | Canonical site URL |
 | `SMTP_*`, `MAIL_TO` | Gmail App Password + admin inbox |
 | `CAPTCHA_SECRET` | Math CAPTCHA HMAC secret |
 | `DATABASE_URL` | Optional — store submissions in PostgreSQL |
-| `NEXT_PUBLIC_SUBMIT_API_URL` | Set on Pages build only (GitHub variable) |
+| `NEXT_PUBLIC_SUBMIT_API_URL` | Optional — only if API is on a different origin |
+
+Helper: [`scripts/setup-vercel-env.ps1`](scripts/setup-vercel-env.ps1)
 
 Run DB migration: [`db/submissions.sql`](db/submissions.sql)
 
@@ -174,9 +157,9 @@ Run DB migration: [`db/submissions.sql`](db/submissions.sql)
 | `/submit` | Add / edit request (+ update alert opt-in) |
 | `/feedback` | Career research feedback |
 | `/privacy-policy`, `/terms-and-conditions` | Legal |
-| `/api/submissions` | POST handler (server deploy only) |
-| `/api/captcha` | GET math CAPTCHA challenge (server deploy only) |
-| `/api/submissions/queue` | GET pending portal requests for review queue (server deploy only) |
+| `/api/submissions` | POST handler |
+| `/api/captcha` | GET math CAPTCHA challenge |
+| `/api/submissions/queue` | GET pending portal requests for review queue |
 
 ---
 
