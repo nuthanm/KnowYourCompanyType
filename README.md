@@ -8,6 +8,7 @@
 [![License](https://img.shields.io/github/license/nuthanm/knowyourcompanytype)](LICENSE)
 
 **Site:** [https://knowyourithub.com](https://knowyourithub.com) · **Community-maintained directory.** Not affiliated with listed companies. No dummy data — only verified entries.
+<img width="1891" height="985" alt="image" src="https://github.com/user-attachments/assets/95a828da-bd92-4d42-8340-67266dde76f4" />
 
 ---
 
