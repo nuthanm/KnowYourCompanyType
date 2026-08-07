@@ -1193,6 +1193,177 @@
       ]
     },
     {
+      "slug": "github",
+      "name": "GitHub",
+      "category": "product",
+      "tagline": "AI-powered developer platform",
+      "description": "GitHub is a developer platform for building, scaling, and delivering secure software with collaboration, automation, and AI-powered tooling. It serves individual developers, open-source communities, and enterprise engineering teams.",
+      "website": "https://github.com/",
+      "hq": "San Francisco, United States",
+      "officeCities": [
+        "San Francisco",
+        "Amsterdam"
+      ],
+      "officeCountries": [
+        "United States",
+        "Netherlands"
+      ],
+      "contactUrl": "https://github.com/enterprise/contact",
+      "domains": [
+        "Developer tools",
+        "Code hosting",
+        "DevOps"
+      ],
+      "tags": [
+        "AI-powered",
+        "Remote-first"
+      ],
+      "products": [
+        "GitHub Copilot",
+        "GitHub Actions",
+        "GitHub Codespaces",
+        "GitHub Enterprise",
+        "GitHub Issues",
+        "GitHub Advanced Security"
+      ],
+      "onsitePolicy": "Remote-first — GitHub highlights remote work and location flexibility; verify specific role listings",
+      "careersUrl": "https://github.careers/",
+      "linkedin": "https://www.linkedin.com/company/github",
+      "twitter": "https://x.com/github",
+      "leadership": [
+        {
+          "name": "Vladimir Fedorov",
+          "role": "Chief Technology Officer"
+        },
+        {
+          "name": "Mario Rodriguez",
+          "role": "Chief Product Officer"
+        },
+        {
+          "name": "Shweta Vohra",
+          "role": "Chief People Officer"
+        }
+      ],
+      "vision": "Accelerate human progress through developer collaboration.",
+      "lastVerified": "2026-08-07",
+      "verificationStatus": "verified",
+      "sources": [
+        {
+          "label": "About GitHub",
+          "url": "https://github.com/about"
+        },
+        {
+          "label": "Why GitHub",
+          "url": "https://github.com/why-github"
+        },
+        {
+          "label": "Careers",
+          "url": "https://github.careers/"
+        },
+        {
+          "label": "Leadership",
+          "url": "https://github.com/about/leadership"
+        },
+        {
+          "label": "Privacy statement",
+          "url": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement"
+        },
+        {
+          "label": "Enterprise contact",
+          "url": "https://github.com/enterprise/contact"
+        }
+      ]
+    },
+    {
+      "slug": "changepond",
+      "name": "Changepond",
+      "category": "service",
+      "tagline": "AI-first digital services and software consulting company",
+      "description": "Changepond is an AI-first digital services company that helps enterprises run and grow the business through software engineering, modernization, consulting, and managed services. It operates a global delivery model across multiple regions and industries.",
+      "website": "https://www.changepond.com/",
+      "founded": "2000",
+      "hq": "Chennai, India",
+      "officeCities": [
+        "Chennai",
+        "Princeton",
+        "London",
+        "Basel",
+        "Kuala Lumpur",
+        "Toronto"
+      ],
+      "officeCountries": [
+        "India",
+        "United States",
+        "United Kingdom",
+        "Switzerland",
+        "Malaysia",
+        "Canada"
+      ],
+      "totalOfficeLocations": "6 global offices",
+      "locationsUrl": "https://www.changepond.com/contact",
+      "contactUrl": "https://www.changepond.com/contact",
+      "headcountGlobal": "1,500+",
+      "headcountNote": "Global headcount per Changepond About page",
+      "domains": [
+        "IT services",
+        "Digital transformation",
+        "AI consulting"
+      ],
+      "tags": [
+        "Global delivery",
+        "AI-first"
+      ],
+      "services": [
+        "AI-Led Legacy Modernization",
+        "AI-Driven Product Development",
+        "AI Strategy & Consulting",
+        "AI-Powered Managed Services"
+      ],
+      "onsitePolicy": "Flexible or hybrid — verify by role and location",
+      "careersUrl": "https://www.changepond.com/careers",
+      "linkedin": "https://www.linkedin.com/company/changepond",
+      "twitter": "https://twitter.com/changepondonweb",
+      "leadership": [
+        {
+          "name": "Siddharth Ramachandran",
+          "role": "CEO"
+        },
+        {
+          "name": "Srinivas Katta",
+          "role": "Chief Technology Officer"
+        },
+        {
+          "name": "Ramachandran S",
+          "role": "Chairman"
+        }
+      ],
+      "vision": "Be the AI partner enterprises trust to get it done.",
+      "lastVerified": "2026-08-07",
+      "verificationStatus": "verified",
+      "sources": [
+        {
+          "label": "Homepage",
+          "url": "https://www.changepond.com/"
+        },
+        {
+          "label": "About",
+          "url": "https://www.changepond.com/about"
+        },
+        {
+          "label": "Contact",
+          "url": "https://www.changepond.com/contact"
+        },
+        {
+          "label": "Careers",
+          "url": "https://www.changepond.com/careers/"
+        },
+        {
+          "label": "Services",
+          "url": "https://www.changepond.com/services"
+        }
+      ]
+    },
+    {
       "slug": "swiggy",
       "name": "Swiggy",
       "category": "hybrid",

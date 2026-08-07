@@ -1,6 +1,7 @@
 import postgres from "postgres";
 import {
   ALL_COMPANY_SLUGS,
+  COMPANIES,
   PIPELINE_IN_PROGRESS,
   PIPELINE_UNVERIFIED,
   slugifyCompanyName,
@@ -16,7 +17,67 @@ const STATIC_PIPELINE_SLUGS = new Set([
   ...PIPELINE_UNVERIFIED.map((item) => item.slug),
 ]);
 
+function normalizeCompanyKey(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "").trim();
+}
+
+function splitCompanyNameTokens(value: string) {
+  return value
+    .replace(/&/g, " and ")
+    .split(/[\s/-]+/)
+    .flatMap((part) => part.match(/[A-Z]{2,}(?=[A-Z][a-z]|\b)|[A-Z]?[a-z]+|[0-9]+/g) ?? [])
+    .filter(Boolean);
+}
+
+function getAcronymToken(part: string) {
+  const trimmed = part.trim();
+  if (!trimmed) return "";
+
+  const uppercasePrefix = trimmed.match(/^[A-Z0-9]{2,}(?=[a-z]|$)/)?.[0];
+  if (uppercasePrefix) return uppercasePrefix;
+
+  return trimmed[0] ?? "";
+}
+
+function getWebsiteHostKey(url?: string) {
+  if (!url) return "";
+  try {
+    return normalizeCompanyKey(new URL(url).hostname.replace(/^www\./, ""));
+  } catch {
+    return "";
+  }
+}
+
+function getCompanyAliasKeys(name: string, slug: string, website?: string) {
+  const keys = new Set<string>();
+  const add = (value?: string) => {
+    if (!value) return;
+    const normalized = normalizeCompanyKey(value);
+    if (normalized) keys.add(normalized);
+  };
+
+  add(name);
+  add(slug);
+  add(getWebsiteHostKey(website));
+
+  const tokens = splitCompanyNameTokens(name);
+  if (tokens.length > 1) {
+    add(tokens.map((token) => (/^[A-Z0-9]{2,}$/.test(token) ? token : token[0])).join(""));
+    add(tokens.map((token) => token[0]).join(""));
+  }
+
+  const parts = name.replace(/&/g, " and ").split(/[\s/-]+/).filter(Boolean);
+  if (parts.length > 1) {
+    add(parts.map(getAcronymToken).join(""));
+  }
+
+  return keys;
+}
+
 const VERIFIED_SLUGS = new Set(VERIFIED_COMPANIES.map((company) => company.slug));
+const CATALOG_COMPANY_KEYS = new Set(
+  COMPANIES.flatMap((company) => [...getCompanyAliasKeys(company.name, company.slug, company.website)]),
+);
 
 export type QueueSubmissionItem = {
   id: string;
@@ -157,8 +218,12 @@ export async function listQueueSubmissions() {
 
   const seen = new Set<string>();
   const merged = [...jsonItems, ...dbItems].filter((item) => {
+    const itemKeys = getCompanyAliasKeys(item.name, item.slug, item.website);
+    const matchesCatalog = [...itemKeys].some((key) => CATALOG_COMPANY_KEYS.has(key));
+
     if (!item.slug || item.slug === "unknown") return false;
     if (VERIFIED_SLUGS.has(item.slug)) return false;
+    if (matchesCatalog) return false;
     if (
       item.requestType === "edit" &&
       !STATIC_PIPELINE_SLUGS.has(item.slug) &&
