@@ -145,8 +145,11 @@ export function PipelineQueue() {
   const staticEntries = useMemo(() => buildPipelineEntries(), []);
   const [communityEntries, setCommunityEntries] = useState<CompanySearchEntry[]>([]);
   const [mailBannerCompany, setMailBannerCompany] = useState<string | null>(null);
-  const [moderatorToken, setModeratorToken] = useState<string>("");
-  const [moderatorTokenExp, setModeratorTokenExp] = useState<number | null>(null);
+  const moderatorToken = useMemo(() => searchParams.get("moderate")?.trim() ?? "", [searchParams]);
+  const moderatorTokenExp = useMemo(
+    () => (moderatorToken ? decodeModerationTokenExpiry(moderatorToken) : null),
+    [moderatorToken],
+  );
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
 
@@ -224,15 +227,6 @@ export function PipelineQueue() {
     return () => {
       active = false;
     };
-  }, [searchParams]);
-
-  // No-login moderation token from admin email link.
-  useEffect(() => {
-    const token = searchParams.get("moderate")?.trim();
-    if (token) {
-      setModeratorToken(token);
-      setModeratorTokenExp(decodeModerationTokenExpiry(token));
-    }
   }, [searchParams]);
 
   async function updateQueueStatus(entry: CompanySearchEntry, next: QueueStatusUpdate) {
