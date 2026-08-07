@@ -1,6 +1,6 @@
 {
   "dataYear": 2026,
-  "catalogUpdated": "2026-07-30",
+  "catalogUpdated": "2026-08-07",
   "disclaimer": "Profiles reflect publicly available information for the stated year. Company details change — always verify on official sites before applying.",
   "companies": [
     {
@@ -1112,6 +1112,85 @@
       "headcountNote": "Total employees as of September 30, 2025 per PhonePe UDRHP; India-headquartered with no separate global entity headcount disclosed",
       "twitter": "https://twitter.com/PhonePe_",
       "locationsUrl": "https://www.phonepe.com/contact-us/"
+    },
+    {
+      "slug": "sarvam",
+      "name": "Sarvam",
+      "category": "product",
+      "tagline": "India's full-stack sovereign AI platform",
+      "description": "Sarvam is building a full-stack AI platform developed, deployed, and governed entirely in India. It offers models, APIs, and enterprise AI products for developers, enterprises, and government use cases across Indian languages.",
+      "website": "https://www.sarvam.ai/",
+      "founded": "2023",
+      "hq": "Bengaluru, India",
+      "officeCities": [
+        "Bengaluru",
+        "Delhi"
+      ],
+      "officeCountries": [
+        "India"
+      ],
+      "contactUrl": "https://www.sarvam.ai/contact-us",
+      "domains": [
+        "Artificial intelligence",
+        "Generative AI",
+        "Developer APIs"
+      ],
+      "tags": [
+        "Startup",
+        "B2B",
+        "Sovereign AI"
+      ],
+      "products": [
+        "Sarvam Samvaad",
+        "Sarvam Studio",
+        "Sarvam Akshar",
+        "Sarvam Arya",
+        "Sarvam Indus",
+        "Sarvam Edge"
+      ],
+      "onsitePolicy": "On-site — current careers listings are marked on-site",
+      "careersUrl": "https://www.sarvam.ai/careers",
+      "linkedin": "https://www.linkedin.com/company/sarvam-ai",
+      "twitter": "https://x.com/SarvamAI",
+      "leadership": [
+        {
+          "name": "Dr. Vivek Raghavan",
+          "role": "Co-founder"
+        },
+        {
+          "name": "Dr. Pratyush Kumar",
+          "role": "Co-founder"
+        }
+      ],
+      "vision": "AI for all from India.",
+      "lastVerified": "2026-08-07",
+      "verificationStatus": "verified",
+      "sources": [
+        {
+          "label": "Homepage",
+          "url": "https://www.sarvam.ai/"
+        },
+        {
+          "label": "About Us",
+          "url": "https://www.sarvam.ai/about-us"
+        },
+        {
+          "label": "Careers",
+          "url": "https://www.sarvam.ai/careers"
+        },
+        {
+          "label": "Trust Center",
+          "url": "https://www.sarvam.ai/trust-center"
+        },
+        {
+          "label": "Contact Us",
+          "url": "https://www.sarvam.ai/contact-us"
+        },
+        {
+          "label": "Series A announcement",
+          "url": "https://www.sarvam.ai/blogs/announcing-series-a"
+        }
+      ]
     },
     {
       "slug": "swiggy",
