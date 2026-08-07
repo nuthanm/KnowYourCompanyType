@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import type { z, ZodType } from "zod";
 import { jsonResponse } from "@/lib/api/cors";
+import { buildSubscribeWelcomeEmail } from "@/lib/email-templates";
+import { saveSubscriber } from "@/lib/subscribers";
 import { buildAdminEmail, buildUserConfirmationEmail, saveSubmission } from "@/lib/submissions";
 import { isBotLikeSubmission } from "@/lib/security/anti-bot";
 import { sendMail, isMailerConfigured } from "@/lib/security/mailer";
@@ -90,6 +92,28 @@ export async function handleFormSubmit<T extends ZodType>(options: SubmitOptions
       options.request,
       { status: 503 },
     );
+  }
+
+  const hasSubscriberOptIn =
+    typeof (record as Record<string, unknown>).subscribeToUpdates === "boolean" &&
+    Boolean((record as Record<string, unknown>).subscribeToUpdates);
+  if (hasSubscriberOptIn) {
+    const email = typeof input.submitterEmail === "string" ? input.submitterEmail.trim() : "";
+    const name = typeof (record as Record<string, unknown>).submitterName === "string"
+      ? String((record as Record<string, unknown>).submitterName).trim()
+      : "";
+
+    if (email) {
+      await saveSubscriber({ id: randomUUID(), email, name: name || undefined, source: "submit_form" });
+      if (isMailerConfigured()) {
+        try {
+          const welcome = buildSubscribeWelcomeEmail({ name: name || "there", email });
+          await sendMail({ to: email, ...welcome });
+        } catch {
+          // Keep submission success even if welcome mail fails.
+        }
+      }
+    }
   }
 
   if (isMailerConfigured()) {

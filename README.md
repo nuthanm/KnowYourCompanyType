@@ -1,111 +1,180 @@
 # Know Your IT Hub
 
-> Know your company type before you apply — verified, source-linked company profiles for job seekers and researchers.
+Know your company type before you apply.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/nuthanm/knowyourcompanytype/ci.yml?label=CI&logo=github)](https://github.com/nuthanm/knowyourcompanytype/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19-149ECA?logo=react&logoColor=white)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-v4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Zod](https://img.shields.io/badge/Zod-v4-3068B7)](https://zod.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Optional-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel)](https://vercel.com/)
 [![License](https://img.shields.io/github/license/nuthanm/knowyourcompanytype)](LICENSE)
 
-**Site:** [https://knowyourithub.com](https://knowyourithub.com) · **Community-maintained directory.** Not affiliated with listed companies. No dummy data — only verified entries.
-<img width="1891" height="985" alt="image" src="https://github.com/user-attachments/assets/95a828da-bd92-4d42-8340-67266dde76f4" />
+Site: https://knowyourithub.com
 
----
+![Know Your IT Hub hero section showing verified company directory and career research intent](https://github.com/user-attachments/assets/95a828da-bd92-4d42-8340-67266dde76f4)
 
-## Data integrity
+## Purpose
 
-- Catalog lives in [`data/companies.json`](data/companies.json) — every company has **`sources`**, **`lastVerified`**, and **`dataYear`**
-- Category counts are **computed from real entries**, not placeholder numbers
-- Home page shows an **accuracy notice** after the hero: data is for the current catalog year, may change, and users should **Submit request** to report issues
-- Interview patterns and headcount use notes when approximate; unverified fields are omitted
+Job seekers, especially people switching companies, often find scattered or vague information when comparing potential employers. This project gives a minimal, useful, and source-linked company view so visitors can decide faster and with less noise.
 
----
+Core goal:
 
-## Architecture & workflows
+- Show only useful details that help career decisions.
+- Keep the catalog verifiable with citations.
+- Make community corrections easy through submit and feedback workflows.
 
-### System overview
+## Problem We Solve
+
+- Company type (product, service, hybrid) is often unclear on job portals.
+- Public discussions can be outdated, opinionated, or not source-backed.
+- Candidates need one place with consistent structure and clear verification status.
+
+## What Visitors Get
+
+- Searchable company profiles with category and verification status.
+- Source-linked profile fields and data freshness metadata.
+- Progress indicators for verified, in-progress, and awaiting-review entries.
+- Submit and feedback forms for corrections and additions.
+
+## Tech Stack
+
+### Application
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript 5
+- Tailwind CSS 4
+
+### Validation, Security, and Delivery
+
+- Zod for schema validation
+- Math CAPTCHA + anti-bot checks + rate limiting
+- Nodemailer for notifications
+- Vercel for deployment
+
+### Storage
+
+- data/companies.json as primary catalog source
+- Optional PostgreSQL storage for submissions
+- Optional JSON-backed queue fallback for pending review
+- Optional PostgreSQL snapshots for catalog distribution to keep repo data private
+
+## Architecture
 
 ```mermaid
 flowchart TB
-  subgraph App["Know Your IT Hub (Vercel)"]
-    UI["Next.js App Router"]
-    JSON["data/companies.json"]
-    POST["POST /api/submissions"]
-    RL["Rate limit + Math CAPTCHA"]
-    SMTP["Gmail SMTP"]
-    DB[("PostgreSQL optional")]
+  subgraph Frontend["Web App"]
+    UI["Next.js App Router pages"]
+    DATA["Catalog read: data/companies.json"]
   end
 
-  subgraph Maintain["Maintainer workflow"]
-    DRAFT["scripts/enrich-wikidata.mjs"]
-    REVIEW["Manual review"]
-    MERGE["Update companies.json"]
-    DEPLOY["Push → Vercel deploy"]
+  subgraph APIs["Form and Queue APIs"]
+    SUBMIT["POST /api/submissions"]
+    FEED["POST /api/feedback"]
+    CONTACT["POST /api/contact"]
+    CAPTCHA["GET /api/captcha"]
+    QUEUE["GET /api/submissions/queue"]
   end
 
-  UI --> JSON
-  UI --> POST
-  POST --> RL --> SMTP
-  POST --> DB
-  DRAFT --> REVIEW --> MERGE --> JSON --> DEPLOY
+  subgraph Controls["Security and Controls"]
+    BOT["Honeypot + timing checks"]
+    LIMIT["Rate limiting"]
+    SAN["Input sanitization"]
+    MAIL["SMTP notifications"]
+  end
+
+  subgraph Storage["Persistence"]
+    PG[("PostgreSQL optional")]
+    JSONQ["Pending queue JSON fallback"]
+  end
+
+  UI --> DATA
+  UI --> SUBMIT
+  UI --> FEED
+  UI --> CONTACT
+  UI --> CAPTCHA
+  SUBMIT --> BOT --> LIMIT --> SAN --> MAIL
+  FEED --> BOT
+  CONTACT --> BOT
+  SUBMIT --> PG
+  SUBMIT --> JSONQ
+  QUEUE --> PG
+  QUEUE --> JSONQ
 ```
 
-### Catalog update workflow
+## Verification and Intake Workflow
 
-```mermaid
-sequenceDiagram
-  participant V as Visitor
-  participant S as Submit API
-  participant A as Admin email
-  participant M as Maintainer
-  participant J as data/companies.json
-  participant D as Vercel
+### 1) How companies are verified
 
-  V->>S: POST add/edit request
-  S->>A: Admin notification email
-  S->>V: Confirmation email
-  A->>M: Review against official sources
-  M->>J: Merge verified profile
-  M->>D: Push main → deploy
-  D->>V: Updated catalog live
-```
+- Primary sources are required (official website, careers page, official location pages, or other authoritative references).
+- A profile is considered verified only after manual maintainer review.
+- Fields that cannot be validated are omitted or marked carefully.
+- Verification metadata includes lastVerified and sources.
 
-### Data sourcing workflow (no scraping of restricted sites)
+### 2) How companies are added to the review queue
 
-```mermaid
-flowchart LR
-  A["Official website / careers"] --> R["Manual verification"]
-  B["Wikidata draft script"] --> R
-  C["Community submit"] --> R
-  R --> J["data/companies.json"]
-  D["LinkedIn / reports"] -.->|manual entry only| R
-```
+- Visitor submits add/edit request through the site.
+- Server validates schema, CAPTCHA, anti-bot signals, and sanitization.
+- Request is stored in PostgreSQL when configured; JSON fallback can retain queue entries.
+- Queue endpoint filters duplicates and items already covered in catalog/pipeline.
+- Maintainer reviews pending entries before publication.
 
-| Step | Command / action |
-|------|------------------|
-| Draft from Wikidata | `npm run enrich:wikidata -- "Company Name" slug` |
-| Review draft | Check `data/drafts/slug.draft.json` against official site |
-| Publish | Merge into `data/companies.json`, set `category`, `sources`, `lastVerified` |
-| Deploy | Push to `main` → Vercel deploys |
+Status lifecycle in queue:
 
----
+- awaiting_review -> in_progress -> verified
+- rejected is available for requests that cannot be validated
 
-## What this app does
+Status update API (admin only):
 
-| Capability | Description |
-|------------|-------------|
-| **Browse** | Filter product / service / hybrid — verified-only in search |
-| **Verified stamp** | Manual check on official pages before publish — see `/brief` slide 9 |
-| **Catalog progress** | Landing shows verified / in progress / awaiting review |
-| **Profiles** | Source-linked fields, data year, Verified badge |
-| **The Brief** | [`/brief`](/brief) — stakeholder deck |
-| **Submit** | Report errors or request adds + optional update emails |
-| **Feedback** | [`/feedback`](/feedback) — did we help your career research? |
-| **Policies** | Privacy, Terms, cookie consent, AdSense gating |
+- POST /api/submissions/queue/status
+- Requires ADMIN_API_KEY via Authorization Bearer token or x-admin-key header
+- Also supports secure no-login moderation via x-moderator-token (magic link token from admin email)
+- Sends subscriber stage updates for awaiting_review, in_progress, and verified
 
----
+No-login moderation from UI:
 
-## Quick start
+- Admin email includes "Open moderation console (no login)"
+- Opens /coming-soon?moderate=<signed-token>
+- Queue rows show status action buttons directly in UI
+
+### 3) How submit and feedback work
+
+- Submit form: add/edit requests for company data.
+- Feedback form: quality and usefulness feedback for the platform.
+- Contact form: direct contact messages.
+- Admin receives notification emails; user receives confirmation when email is provided.
+- If a submitter opts in for updates, they are stored in catalog_subscribers and receive a welcome email.
+
+### 4) Additional operational controls worth documenting
+
+- Rate limiting for abuse prevention.
+- Honeypot/timing bot detection.
+- CAPTCHA challenge token verification.
+- Input sanitization and suspicious-character rejection.
+- CORS handling for cross-origin safety.
+
+## Company Data Process
+
+The current catalog is maintained in data/companies.json.
+
+Typical workflow:
+
+1. Draft a company profile (optionally via enrichment scripts).
+2. Validate details against official sources.
+3. Set category, verification status, and source links.
+4. Update lastVerified and related metadata.
+5. Merge into catalog and deploy.
+
+Helper scripts (examples):
+
+- npm run enrich:wikidata -- "Company Name" slug
+- scripts/merge-enrichments.mjs
+- scripts/fill-remaining-gaps.mjs
+
+## Local Setup
 
 ```bash
 npm install
@@ -113,63 +182,96 @@ cp .env.example .env.local
 npm run dev
 ```
 
-- Browse: [http://localhost:3000](http://localhost:3000)
-- The Brief: [http://localhost:3000/brief](http://localhost:3000/brief)
+Open http://localhost:3000
 
----
+## Environment and Deployment
 
-## Deploy (Vercel)
+- Deploy target: Vercel
+- Environment template: .env.example
+- Optional persistence: PostgreSQL via DATABASE_URL
+- Optional API hardening: ADMIN_API_KEY and CORS origins
+- Optional strict deployment gate: CATALOG_DB_REQUIRED=1
 
-Deploy the full Next.js app (UI + `app/api/*`) to **Vercel** with env vars from [`.env.example`](.env.example).
+Catalog sync commands:
 
-Live URL: [`https://knowyourithub.com`](https://knowyourithub.com)
+- npm run catalog:push-db
+- npm run catalog:pull-db
+- npm run catalog:pull-db:required
+- npm run companies:sync-db
 
-| Variable | Purpose |
-|----------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Canonical site URL |
-| `SMTP_*`, `MAIL_TO` | Gmail App Password + admin inbox |
-| `CAPTCHA_SECRET` | Math CAPTCHA HMAC secret |
-| `DATABASE_URL` | Optional — store submissions in PostgreSQL |
-| `NEXT_PUBLIC_SUBMIT_API_URL` | Optional — only if API is on a different origin |
+Build behavior:
 
-Helper: [`scripts/setup-vercel-env.ps1`](scripts/setup-vercel-env.ps1)
+- npm run build runs prebuild automatically.
+- prebuild executes catalog pull from DB when DATABASE_URL is configured.
+- If DB is not configured or snapshot table is missing, pull is skipped (non-breaking).
+- If data/companies.json is missing, prebuild auto-creates it from data/companies.example.json.
+- If CATALOG_DB_REQUIRED=1, build fails when DB snapshot pull cannot complete.
 
-Run DB migration: [`db/submissions.sql`](db/submissions.sql)
+Catalog snapshot schema:
 
----
+- db/catalog.sql
+- db/companies.sql
+- db/submissions.sql
 
-## Email templates
+Pull request database sync workflow:
 
-[`lib/email-templates.ts`](lib/email-templates.ts) — admin + user emails include:
+- GitHub Actions workflow: .github/workflows/companies-db-sync.yml
+- Triggers on pull requests that touch data/companies.json
+- Runs only when data/companies.json exists in the workspace
+- Syncs catalog rows into company_profiles and marks matching submissions as verified
 
-- Data year and “verify before publishing” (admin)
-- Thank-you for helping keep the catalog accurate (user)
-- Footer with disclaimer + link to **Submit request**
+## Data Visibility and Private Catalog Guidance
 
----
+Important: data inside tracked files is public in git history when pushed.
 
-## Routes
+If your catalog must stay private, use this approach:
 
-| Path | Description |
-|------|-------------|
-| `/` | Directory + accuracy notice |
-| `/brief` | The Brief presentation |
-| `/companies/[slug]` | Verified profile + sources |
-| `/submit` | Add / edit request (+ update alert opt-in) |
-| `/feedback` | Career research feedback |
-| `/privacy-policy`, `/terms-and-conditions` | Legal |
-| `/api/submissions` | POST handler |
-| `/api/captcha` | GET math CAPTCHA challenge |
-| `/api/submissions/queue` | GET pending portal requests for review queue |
+1. Keep sensitive catalog in an untracked private file (for example data/companies.private.json).
+2. Add private file patterns to .gitignore.
+3. Commit only a sanitized sample file for public repositories.
+4. If data was already committed, rotate/move sensitive values and rewrite history if legally required.
 
----
+Current repository note:
 
-## Standards
+- This codebase currently reads from data/companies.json.
+- To fully hide catalog content from public viewers, you must stop tracking sensitive data files and publish only sanitized data.
 
-Aligned with [aidevreference](https://github.com/nuthanm/aidevreference): Math CAPTCHA, honeypot, rate limits, sanitization, cookie consent, AdSense `ads.txt`, CSP in production (disabled in dev for Turbopack).
+### Zero-Downtime rollout (recommended)
 
----
+1. Apply DB schema:
+  - Run db/catalog.sql on production PostgreSQL.
+2. Push current catalog snapshot to DB:
+  - npm run catalog:push-db
+3. Set production env CATALOG_DB_REQUIRED=1.
+4. Deploy application (prebuild pulls active snapshot into data/companies.json at build time).
+5. Validate catalog pages and search in production.
+6. After validation, remove tracked catalog from git history policy:
+  - Keep data/companies.json gitignored.
+  - Untrack existing file once team is ready: git rm --cached data/companies.json
 
-## License
+For local/public development without private data:
 
-See [LICENSE](LICENSE) if present.
+- Keep data/companies.example.json in repo.
+- prebuild will use it only when data/companies.json is absent.
+
+This order avoids downtime because existing app behavior remains unchanged while source-of-truth transitions to DB.
+
+## Attribution and Disclosures
+
+- Community-maintained directory; not affiliated with listed companies.
+- Information can change over time; always cross-check with official sources before making career decisions.
+- External references and brand names belong to their respective owners.
+- This platform is informational and does not guarantee hiring outcomes.
+
+## Copyright
+
+Copyright (c) 2026 Nuthan Murarysetty.
+All trademarks and company names referenced in profiles remain property of their respective owners.
+
+## License and Forking Clarification
+
+This repository currently includes an MIT license in LICENSE.
+
+If your intent is to prevent others from forking/reusing code, MIT is not suitable. You should replace LICENSE with a restrictive/proprietary license before publishing that policy.
+
+Until LICENSE is changed, usage rights are governed by the current LICENSE file.

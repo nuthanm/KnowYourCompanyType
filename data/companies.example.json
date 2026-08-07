@@ -1,0 +1,30 @@
+{
+  "dataYear": 2026,
+  "catalogUpdated": "2026-01-01",
+  "disclaimer": "Sample dataset for public development only. Replace with verified private catalog in production.",
+  "companies": [
+    {
+      "slug": "sample-company",
+      "name": "Sample Company",
+      "category": "product",
+      "tagline": "Sample profile for local/public development",
+      "description": "This is a placeholder profile used when private catalog data is not available in the repository.",
+      "website": "https://example.com",
+      "hq": "Sample City, Country",
+      "domains": [
+        "Sample Domain"
+      ],
+      "tags": [
+        "Sample"
+      ],
+      "lastVerified": "2026-01-01",
+      "verificationStatus": "verified",
+      "sources": [
+        {
+          "label": "Example source",
+          "url": "https://example.com"
+        }
+      ]
+    }
+  ]
+}

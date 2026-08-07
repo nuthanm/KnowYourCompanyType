@@ -4,8 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/catalog-pull-db.mjs",
     "build": "next build",
     "enrich:wikidata": "node scripts/enrich-wikidata.mjs",
+    "catalog:push-db": "node scripts/catalog-push-db.mjs",
+    "catalog:pull-db": "node scripts/catalog-pull-db.mjs",
+    "catalog:pull-db:required": "node scripts/catalog-pull-db.mjs --required",
+    "companies:sync-db": "node scripts/sync-companies-db.mjs",
     "start": "next start",
     "lint": "eslint ."
   },

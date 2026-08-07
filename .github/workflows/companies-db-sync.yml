@@ -1,0 +1,32 @@
+name: Companies DB Sync
+
+on:
+  pull_request:
+    paths:
+      - data/companies.json
+      - scripts/sync-companies-db.mjs
+      - db/companies.sql
+      - db/submissions.sql
+  workflow_dispatch:
+
+jobs:
+  sync:
+    if: ${{ hashFiles('data/companies.json') != '' }}
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      MAIL_FROM: ${{ secrets.MAIL_FROM }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Sync companies into DB and reconcile submission statuses
+        run: npm run companies:sync-db

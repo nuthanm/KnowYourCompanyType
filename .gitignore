@@ -329,6 +329,15 @@ linkedin-diff.txt
 # Enrichment research batches & scratch (merged into data/companies.json)
 data/enrichments/
 
+# Optional private/local catalog data (not committed)
+data/companies.private.json
+data/pipeline.private.json
+
+# Private mode: keep real catalog out of public git history.
+# NOTE: if data/companies.json is already tracked, run:
+#   git rm --cached data/companies.json
+data/companies.json
+
 # Reference clone (local only)
 _yieldproof-ref/
 

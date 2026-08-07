@@ -8,6 +8,14 @@ import {
   VERIFIED_COMPANIES,
 } from "./companies";
 import { buildAdminEmail, buildUserConfirmationEmail } from "./email-templates";
+import { buildQueueStageBroadcastEmail } from "./email-templates";
+import { isMailerConfigured, sendMail } from "./security/mailer";
+import {
+  queueStatusToSearchStatus,
+  type QueueSubmissionItem,
+  type SubmissionQueueStatus,
+} from "./submissions-shared";
+import { listSubscribers } from "./subscribers";
 import type { SubmissionInput } from "./validators";
 
 let sql: ReturnType<typeof postgres> | null = null;
@@ -79,15 +87,16 @@ const CATALOG_COMPANY_KEYS = new Set(
   COMPANIES.flatMap((company) => [...getCompanyAliasKeys(company.name, company.slug, company.website)]),
 );
 
-export type QueueSubmissionItem = {
-  id: string;
-  slug: string;
-  name: string;
-  requestType: "add" | "edit";
-  note: string;
-  submittedAt: string;
-  website?: string;
-};
+const ACTIVE_QUEUE_STATUSES: SubmissionQueueStatus[] = ["awaiting_review", "in_progress"];
+
+function mapDbSubmissionStatus(value?: string | null): SubmissionQueueStatus {
+  if (value === "in_progress") return "in_progress";
+  if (value === "verified") return "verified";
+  if (value === "rejected") return "rejected";
+  // Backward compatibility with old schema/status value.
+  if (value === "pending") return "awaiting_review";
+  return "awaiting_review";
+}
 
 function getSql() {
   const url = process.env.DATABASE_URL?.trim();
@@ -119,6 +128,31 @@ function buildQueueNote(input: Pick<SubmissionInput, "requestType" | "message">)
   return `Community request — ${summary}`;
 }
 
+async function notifySubscribersOnQueueStageChange(params: {
+  companyName: string;
+  companySlug?: string;
+  stage: Exclude<SubmissionQueueStatus, "rejected">;
+}) {
+  if (!isMailerConfigured()) return;
+  const subscribers = await listSubscribers(300);
+  if (!subscribers.length) return;
+
+  const mail = buildQueueStageBroadcastEmail({
+    companyName: params.companyName,
+    companySlug: params.companySlug,
+    stage: params.stage,
+  });
+
+  for (const subscriber of subscribers) {
+    if (!subscriber.email) continue;
+    try {
+      await sendMail({ to: subscriber.email, ...mail });
+    } catch {
+      // Continue notifying others even if a single delivery fails.
+    }
+  }
+}
+
 export async function saveSubmission(input: SubmissionInput & { id: string }) {
   const db = getSql();
   if (!db) return { stored: false as const };
@@ -142,7 +176,7 @@ export async function saveSubmission(input: SubmissionInput & { id: string }) {
       company_slug = EXCLUDED.company_slug,
       website = EXCLUDED.website,
       message = EXCLUDED.message,
-      status = 'pending',
+      status = 'awaiting_review',
       updated_at = NOW()
   `;
   return { stored: true as const };
@@ -157,6 +191,7 @@ export async function enqueueSubmissionFromMail(
     slug,
     name: input.companyName.trim(),
     requestType: input.requestType,
+    queueStatus: "awaiting_review",
     note: buildQueueNote(input),
     submittedAt: new Date().toISOString(),
     website: input.website?.trim() || undefined,
@@ -178,6 +213,7 @@ export async function listQueueSubmissions() {
       Array<{
         id: string;
         request_type: "add" | "edit";
+        status: string;
         company_name: string;
         company_slug: string | null;
         website: string | null;
@@ -185,9 +221,9 @@ export async function listQueueSubmissions() {
         created_at: Date;
       }>
     >`
-      SELECT id, request_type, company_name, company_slug, website, message, created_at
+      SELECT id, request_type, status, company_name, company_slug, website, message, created_at
       FROM company_submissions
-      WHERE status = 'pending'
+      WHERE status = ANY(${ACTIVE_QUEUE_STATUSES}) OR status = 'pending'
       ORDER BY created_at DESC
       LIMIT 200
     `;
@@ -206,6 +242,7 @@ export async function listQueueSubmissions() {
         slug,
         name: row.company_name.trim(),
         requestType: row.request_type,
+        queueStatus: mapDbSubmissionStatus(row.status),
         note: buildQueueNote(input),
         submittedAt: row.created_at.toISOString(),
         website: row.website?.trim() || undefined,
@@ -240,4 +277,48 @@ export async function listQueueSubmissions() {
   return merged;
 }
 
+export async function updateSubmissionQueueStatus(input: {
+  id: string;
+  status: SubmissionQueueStatus;
+  companyName?: string;
+  companySlug?: string;
+}) {
+  const db = getSql();
+  if (!db) return { updated: false as const, reason: "db-not-configured" as const };
+
+  const rows = await db<
+    Array<{
+      id: string;
+      company_name: string;
+      company_slug: string | null;
+      status: string;
+    }>
+  >`
+    UPDATE company_submissions
+    SET status = ${input.status}, updated_at = NOW()
+    WHERE id = ${input.id}
+    RETURNING id, company_name, company_slug, status
+  `;
+
+  const row = rows[0];
+  if (!row) return { updated: false as const, reason: "not-found" as const };
+
+  if (input.status !== "rejected") {
+    await notifySubscribersOnQueueStageChange({
+      companyName: input.companyName?.trim() || row.company_name,
+      companySlug: input.companySlug?.trim() || row.company_slug || undefined,
+      stage: input.status,
+    });
+  }
+
+  return {
+    updated: true as const,
+    id: row.id,
+    companyName: row.company_name,
+    companySlug: row.company_slug,
+    status: mapDbSubmissionStatus(row.status),
+  };
+}
+
 export { buildAdminEmail, buildUserConfirmationEmail };
+export { queueStatusToSearchStatus, type QueueSubmissionItem, type SubmissionQueueStatus };

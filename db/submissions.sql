@@ -7,10 +7,25 @@ CREATE TABLE IF NOT EXISTS company_submissions (
   submitter_name TEXT NOT NULL,
   submitter_email TEXT NOT NULL,
   message TEXT NOT NULL,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'accepted', 'rejected')),
+  status TEXT NOT NULL DEFAULT 'awaiting_review' CHECK (status IN ('awaiting_review', 'in_progress', 'verified', 'rejected')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE company_submissions DROP CONSTRAINT IF EXISTS company_submissions_status_check;
+ALTER TABLE company_submissions
+  ADD CONSTRAINT company_submissions_status_check
+  CHECK (status IN ('pending', 'reviewed', 'accepted', 'awaiting_review', 'in_progress', 'verified', 'rejected'));
+
+UPDATE company_submissions SET status = 'awaiting_review' WHERE status IN ('pending', 'reviewed');
+UPDATE company_submissions SET status = 'verified' WHERE status = 'accepted';
+
+ALTER TABLE company_submissions DROP CONSTRAINT IF EXISTS company_submissions_status_check;
+ALTER TABLE company_submissions
+  ADD CONSTRAINT company_submissions_status_check
+  CHECK (status IN ('awaiting_review', 'in_progress', 'verified', 'rejected'));
+
+ALTER TABLE company_submissions ALTER COLUMN status SET DEFAULT 'awaiting_review';
 
 CREATE INDEX IF NOT EXISTS company_submissions_email_idx ON company_submissions (submitter_email);
 CREATE INDEX IF NOT EXISTS company_submissions_status_idx ON company_submissions (status);

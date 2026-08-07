@@ -1,4 +1,4 @@
-import type { QueueSubmissionItem } from "@/lib/submissions";
+import type { QueueSubmissionItem } from "@/lib/submissions-shared";
 
 const PENDING_QUEUE_KEY = "pending-queue:json";
 
@@ -38,7 +38,11 @@ export async function readPendingQueueJson(): Promise<QueueSubmissionItem[]> {
   if (typeof raw !== "string" || !raw) return [];
   try {
     const parsed = JSON.parse(raw) as QueueSubmissionItem[];
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item) => ({
+      ...item,
+      queueStatus: item?.queueStatus ?? "awaiting_review",
+    }));
   } catch {
     return [];
   }

@@ -1,0 +1,162 @@
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+import nodemailer from "nodemailer";
+import postgres from "postgres";
+
+const dbUrl = process.env.DATABASE_URL?.trim();
+if (!dbUrl || dbUrl.includes("replace") || dbUrl.includes("user:password")) {
+  console.log("DATABASE_URL is missing or placeholder. Skipping company sync.");
+  process.exit(0);
+}
+
+const catalogPath = resolve(process.cwd(), "data", "companies.json");
+
+function normalizeStatus(value) {
+  if (value === "verified" || value === "in_progress" || value === "unverified") return value;
+  return "unverified";
+}
+
+function isMailerConfigured() {
+  const host = process.env.SMTP_HOST?.trim();
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
+  return Boolean(host && user && pass && !host.includes("replace") && !user.includes("your@gmail.com") && !pass.includes("replace"));
+}
+
+function getTransport() {
+  const host = process.env.SMTP_HOST?.trim();
+  const port = Number(process.env.SMTP_PORT || 587);
+  const user = process.env.SMTP_USER?.trim();
+  const pass = process.env.SMTP_PASS?.trim();
+  if (!host || !user || !pass) return null;
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465,
+    auth: { user, pass },
+  });
+}
+
+const raw = await readFile(catalogPath, "utf8");
+const catalog = JSON.parse(raw);
+if (!catalog || !Array.isArray(catalog.companies)) {
+  throw new Error("data/companies.json must contain companies[]");
+}
+
+const companies = catalog.companies;
+if (companies.length === 0) {
+  console.log("data/companies.json has no companies. Skipping sync.");
+  process.exit(0);
+}
+
+const verifiedSlugs = companies
+  .filter((company) => normalizeStatus(company.verificationStatus) === "verified")
+  .map((company) => String(company.slug || "").trim())
+  .filter(Boolean);
+
+const sql = postgres(dbUrl, { max: 1, prepare: false });
+
+try {
+  const newlyVerified = [];
+
+  await sql.begin(async (tx) => {
+    await tx`
+      CREATE TABLE IF NOT EXISTS company_profiles (
+        slug TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        category TEXT NOT NULL,
+        verification_status TEXT NOT NULL,
+        last_verified TEXT,
+        payload JSONB NOT NULL,
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+
+    for (const company of companies) {
+      const slug = String(company.slug || "").trim();
+      if (!slug) continue;
+      const name = String(company.name || slug).trim();
+      const category = String(company.category || "unknown").trim();
+      const verificationStatus = normalizeStatus(company.verificationStatus);
+      const lastVerified = company.lastVerified ? String(company.lastVerified) : null;
+
+      await tx`
+        INSERT INTO company_profiles (slug, name, category, verification_status, last_verified, payload, updated_at)
+        VALUES (${slug}, ${name}, ${category}, ${verificationStatus}, ${lastVerified}, ${tx.json(company)}, NOW())
+        ON CONFLICT (slug) DO UPDATE SET
+          name = EXCLUDED.name,
+          category = EXCLUDED.category,
+          verification_status = EXCLUDED.verification_status,
+          last_verified = EXCLUDED.last_verified,
+          payload = EXCLUDED.payload,
+          updated_at = NOW()
+      `;
+    }
+
+    if (verifiedSlugs.length > 0) {
+      const updated = await tx`
+        UPDATE company_submissions
+        SET status = 'verified', updated_at = NOW()
+        WHERE company_slug = ANY(${verifiedSlugs})
+          AND status IN ('awaiting_review', 'in_progress', 'pending', 'reviewed', 'accepted')
+        RETURNING company_name, company_slug
+      `;
+
+      for (const row of updated) {
+        newlyVerified.push({
+          companyName: String(row.company_name || "").trim(),
+          companySlug: String(row.company_slug || "").trim(),
+        });
+      }
+    }
+  });
+
+  if (newlyVerified.length > 0 && isMailerConfigured()) {
+    const subscribers = await sql<Array<{ email: string }>>`
+      SELECT email
+      FROM catalog_subscribers
+      ORDER BY created_at DESC
+      LIMIT 300
+    `;
+
+    if (subscribers.length > 0) {
+      const transport = getTransport();
+      if (transport) {
+        for (const company of newlyVerified) {
+          const profilePath = company.companySlug ? `/companies/${company.companySlug}` : "/coming-soon";
+          const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+          const subject = `[Know Your IT Hub] ${company.companyName} status update: Verified`;
+          const text = [
+            `${company.companyName} moved to: Verified`,
+            "",
+            "A company request completed review and is now verified in the catalog.",
+            `Track status: ${site}/coming-soon`,
+            `View profile: ${site}${profilePath}`,
+          ].join("\n");
+
+          for (const subscriber of subscribers) {
+            const to = String(subscriber.email || "").trim();
+            if (!to) continue;
+            try {
+              await transport.sendMail({
+                from: process.env.MAIL_FROM || process.env.SMTP_USER,
+                to,
+                subject,
+                text,
+                html: `<p><strong>${company.companyName}</strong> moved to <strong>Verified</strong>.</p><p>A company request completed review and is now verified in the catalog.</p><p><a href="${site}/coming-soon">Open review queue</a></p><p><a href="${site}${profilePath}">View profile</a></p>`,
+              });
+            } catch {
+              // Keep sync successful if individual email delivery fails.
+            }
+          }
+        }
+      }
+    }
+  }
+
+  console.log(`Synced ${companies.length} companies to company_profiles.`);
+  console.log(`Marked submission rows verified for ${verifiedSlugs.length} verified slugs.`);
+} finally {
+  await sql.end({ timeout: 5 });
+}

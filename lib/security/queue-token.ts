@@ -13,6 +13,11 @@ export type QueueAcceptPayload = {
   submitterEmail: string;
 };
 
+export type QueueModerationPayload = {
+  role: "moderator";
+  exp: number;
+};
+
 function signingSecret() {
   return (
     process.env.ADMIN_API_KEY?.trim() ||
@@ -94,6 +99,39 @@ export function verifyMailBannerToken(token?: string | null): { companyName: str
     };
     if (!parsed.companyName || !parsed.id || !parsed.exp || Date.now() > parsed.exp) return null;
     return { companyName: parsed.companyName, id: parsed.id };
+  } catch {
+    return null;
+  }
+}
+
+/** No-login moderation token for queue status updates from trusted email links. */
+export function createQueueModerationToken(ttlMs = 7 * 24 * 60 * 60 * 1000) {
+  const body = Buffer.from(
+    JSON.stringify({ role: "moderator", exp: Date.now() + ttlMs } satisfies QueueModerationPayload),
+    "utf8",
+  ).toString("base64url");
+  return `${body}.${sign(body)}`;
+}
+
+export function verifyQueueModerationToken(token?: string | null): QueueModerationPayload | null {
+  if (!token) return null;
+  const [body, sig] = token.split(".");
+  if (!body || !sig) return null;
+
+  const expected = sign(body);
+  try {
+    const a = Buffer.from(sig);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+  } catch {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as QueueModerationPayload;
+    if (parsed.role !== "moderator") return null;
+    if (!parsed.exp || Date.now() > parsed.exp) return null;
+    return parsed;
   } catch {
     return null;
   }

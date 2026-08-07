@@ -2,23 +2,50 @@ import { DATA_YEAR } from "./companies";
 import { contactTopicLabel } from "./contact-store";
 import { helpedLabel } from "./feedback-store";
 import { escapeHtml } from "./security/sanitize";
-import { createQueueAcceptToken } from "./security/queue-token";
+import { createQueueAcceptToken, createQueueModerationToken } from "./security/queue-token";
 import { EMAIL_FOOTER, getApiPublicUrl, getCatalogUrl, getSiteUrl, SITE_NAME } from "./site-meta";
 import type { ContactInput, FeedbackInput, SubmissionInput } from "./validators";
 
 function emailShell(title: string, bodyHtml: string) {
   const site = escapeHtml(getSiteUrl());
+  const brand = escapeHtml(SITE_NAME);
   return `
-    <div style="font-family:system-ui,sans-serif;color:#141414;max-width:560px;line-height:1.55">
-      <p style="font-size:12px;color:#737373;margin:0 0 16px">${escapeHtml(SITE_NAME)} · Verified catalog · ${DATA_YEAR}</p>
-      <h2 style="font-size:18px;margin:0 0 12px">${escapeHtml(title)}</h2>
-      ${bodyHtml}
-      <hr style="border:none;border-top:1px solid #e8e4dc;margin:20px 0" />
-      <p style="font-size:12px;color:#737373">${escapeHtml(EMAIL_FOOTER.disclaimer)}</p>
-      <p style="font-size:12px;color:#737373">${escapeHtml(EMAIL_FOOTER.reportLine)}</p>
-      <p style="font-size:12px"><a href="${site}/submit" style="color:#0a66c2">Submit a correction</a> · <a href="${site}/contact" style="color:#0a66c2">Contact</a> · <a href="${site}/feedback" style="color:#0a66c2">Share feedback</a></p>
-      <p style="font-size:12px;color:#737373;margin-top:12px">${escapeHtml(EMAIL_FOOTER.signOff)}</p>
-    </div>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5f7fb;padding:24px 12px;font-family:Segoe UI,Arial,sans-serif;color:#111827">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;border:1px solid #dbe5f3;border-radius:14px;overflow:hidden;background:#ffffff">
+            <tr>
+              <td style="padding:18px 22px;background:linear-gradient(120deg, rgba(10,102,194,0.12) 0%, rgba(10,102,194,0.04) 100%);border-bottom:1px solid #dbe5f3">
+                <div style="font-size:20px;font-weight:700;letter-spacing:0.1px;color:#0f172a">${brand}</div>
+                <div style="font-size:12px;color:#475569;margin-top:4px">Verified catalog · ${DATA_YEAR}</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:24px 22px 8px">
+                <h2 style="font-size:22px;line-height:1.25;margin:0 0 14px;color:#111827">${escapeHtml(title)}</h2>
+                ${bodyHtml}
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 22px 24px">
+                <hr style="border:none;border-top:1px solid #e2e8f0;margin:0 0 14px" />
+                <p style="font-size:12px;color:#64748b;margin:0 0 8px">${escapeHtml(EMAIL_FOOTER.disclaimer)}</p>
+                <p style="font-size:12px;color:#64748b;margin:0 0 8px">${escapeHtml(EMAIL_FOOTER.reportLine)}</p>
+                <p style="font-size:12px;margin:0 0 10px">
+                  <a href="${site}/submit" style="color:#0a66c2;text-decoration:none">Submit a correction</a>
+                  ·
+                  <a href="${site}/contact" style="color:#0a66c2;text-decoration:none">Contact</a>
+                  ·
+                  <a href="${site}/feedback" style="color:#0a66c2;text-decoration:none">Share feedback</a>
+                </p>
+                <p style="font-size:11px;color:#94a3b8;margin:0">Source domain: ${site.replace("http://", "").replace("https://", "")}</p>
+                <p style="font-size:12px;color:#64748b;margin:10px 0 0">${escapeHtml(EMAIL_FOOTER.signOff)}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
 }
 
@@ -47,10 +74,53 @@ function buildAddToQueueUrl(input: SubmissionInput & { id: string }) {
   return `${getApiPublicUrl()}/api/submissions/queue/accept?token=${encodeURIComponent(token)}`;
 }
 
+function queueStageLabel(stage: "awaiting_review" | "in_progress" | "verified") {
+  if (stage === "awaiting_review") return "Awaiting review";
+  if (stage === "in_progress") return "In progress";
+  return "Verified";
+}
+
+function queueStageMessage(stage: "awaiting_review" | "in_progress" | "verified") {
+  if (stage === "awaiting_review") {
+    return "A new company request entered the review queue and is awaiting verification.";
+  }
+  if (stage === "in_progress") {
+    return "A queued company is now in progress while maintainers validate official sources.";
+  }
+  return "A company request completed review and is now verified in the catalog.";
+}
+
+function queueStageCta(stage: "awaiting_review" | "in_progress" | "verified") {
+  if (stage === "awaiting_review") {
+    return {
+      heading: "Request accepted into queue",
+      detail:
+        "We have accepted this request and placed it in the verification queue. Next, maintainers will validate official sources.",
+      cta: "Track in review queue",
+    };
+  }
+  if (stage === "in_progress") {
+    return {
+      heading: "Verification is in progress",
+      detail:
+        "Maintainers are currently checking official website/careers/locations references before publishing final details.",
+      cta: "See current queue status",
+    };
+  }
+  return {
+    heading: "Company is now verified",
+    detail:
+      "Review completed. The company profile now appears as verified in the catalog with source-linked details.",
+    cta: "Open verified profile",
+  };
+}
+
 export function buildAdminEmail(input: SubmissionInput & { id: string }) {
   const site = getSiteUrl();
   const catalog = getCatalogUrl();
   const addToQueueUrl = buildAddToQueueUrl(input);
+  const moderationToken = createQueueModerationToken();
+  const moderationUrl = `${catalog}/coming-soon/?moderate=${encodeURIComponent(moderationToken)}`;
   const subject = `[${SITE_NAME}] ${input.requestType === "add" ? "Add" : "Edit"} request: ${input.companyName}`;
   const lines = [
     `New ${input.requestType} request for the ${DATA_YEAR} catalog.`,
@@ -67,6 +137,7 @@ export function buildAdminEmail(input: SubmissionInput & { id: string }) {
     input.message,
     "",
     `Add to review queue: ${addToQueueUrl}`,
+    `Open moderation console: ${moderationUrl}`,
     `Review queue: ${catalog}/coming-soon/`,
     `Submit form: ${site}/submit`,
     textFooter(),
@@ -86,6 +157,11 @@ export function buildAdminEmail(input: SubmissionInput & { id: string }) {
       <p style="margin:20px 0 8px">
         <a href="${escapeHtml(addToQueueUrl)}" style="display:inline-block;background:#0a66c2;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:8px;font-weight:600">
           Add ${escapeHtml(input.companyName)} to review queue
+        </a>
+      </p>
+      <p style="margin:0 0 10px">
+        <a href="${escapeHtml(moderationUrl)}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:11px 18px;border-radius:8px;font-weight:600">
+          Open moderation console (no login)
         </a>
       </p>
       <p style="font-size:12px;color:#737373;margin:0">
@@ -155,6 +231,49 @@ export function buildSubscribeWelcomeEmail(input: { name: string; email: string 
       <p>Thanks for subscribing to <strong>${escapeHtml(SITE_NAME)}</strong> update alerts.</p>
       <p>We will email you when we add or verify companies on the ${DATA_YEAR} catalog — including what was added or updated.</p>
       <p>Only profiles that pass manual review on official sources receive our <strong>Verified</strong> stamp.</p>
+    `,
+  );
+
+  return { subject, text, html };
+}
+
+export function buildQueueStageBroadcastEmail(input: {
+  companyName: string;
+  companySlug?: string;
+  stage: "awaiting_review" | "in_progress" | "verified";
+}) {
+  const site = getSiteUrl();
+  const stage = queueStageLabel(input.stage);
+  const message = queueStageMessage(input.stage);
+  const info = queueStageCta(input.stage);
+  const profilePath = input.companySlug ? `/companies/${input.companySlug}` : "/coming-soon";
+  const profileUrl = `${site}${profilePath}`;
+
+  const subject = `[${SITE_NAME}] ${input.companyName} status update: ${stage}`;
+  const text = [
+    `${input.companyName} moved to: ${stage}`,
+    "",
+    info.heading,
+    info.detail,
+    "",
+    message,
+    "",
+    input.stage === "verified"
+      ? `${info.cta}: ${profileUrl}`
+      : `${info.cta}: ${site}/coming-soon`,
+    textFooter(),
+  ].filter(Boolean).join("\n");
+
+  const html = emailShell(
+    `${escapeHtml(input.companyName)} status update`,
+    `
+      <p><strong>${escapeHtml(input.companyName)}</strong> moved to <strong>${escapeHtml(stage)}</strong>.</p>
+      <p><strong>${escapeHtml(info.heading)}</strong></p>
+      <p>${escapeHtml(info.detail)}</p>
+      <p>${escapeHtml(message)}</p>
+      ${input.stage === "verified"
+        ? `<p><a href="${escapeHtml(profileUrl)}" style="color:#0a66c2">${escapeHtml(info.cta)}</a></p>`
+        : `<p><a href="${site}/coming-soon" style="color:#0a66c2">${escapeHtml(info.cta)}</a></p>`}
     `,
   );
 

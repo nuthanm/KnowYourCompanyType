@@ -1,0 +1,16 @@
+export type SubmissionQueueStatus = "awaiting_review" | "in_progress" | "verified" | "rejected";
+
+export type QueueSubmissionItem = {
+  id: string;
+  slug: string;
+  name: string;
+  requestType: "add" | "edit";
+  queueStatus: SubmissionQueueStatus;
+  note: string;
+  submittedAt: string;
+  website?: string;
+};
+
+export function queueStatusToSearchStatus(status: SubmissionQueueStatus) {
+  return status === "in_progress" ? "in_progress" : "unverified";
+}

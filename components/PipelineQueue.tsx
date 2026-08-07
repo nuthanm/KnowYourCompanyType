@@ -19,11 +19,12 @@ import {
   type CompanySearchEntry,
 } from "@/lib/company-search";
 import { getQueueApiUrl } from "@/lib/site-meta";
-import type { QueueSubmissionItem } from "@/lib/submissions";
+import { queueStatusToSearchStatus, type QueueSubmissionItem } from "@/lib/submissions-shared";
 import { VerificationStatusTag } from "@/components/VerificationStatusTag";
 import { IconCompanies, IconSubmit } from "@/components/PortalIcons";
 
 const PAGE_SIZE = 20;
+type QueueStatusUpdate = "awaiting_review" | "in_progress" | "verified" | "rejected";
 
 const CATEGORY_OPTIONS: Array<{ id: CompanyCategory | "all"; label: string }> = [
   { id: "all", label: "All types" },
@@ -61,11 +62,35 @@ function buildPipelineEntries(): CompanySearchEntry[] {
   ].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+function decodeModerationTokenExpiry(token: string): number | null {
+  try {
+    const body = token.split(".")[0];
+    if (!body) return null;
+    const base64 = body.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = `${base64}${"=".repeat((4 - (base64.length % 4)) % 4)}`;
+    const json = JSON.parse(atob(padded)) as { exp?: unknown };
+    return typeof json.exp === "number" ? json.exp : null;
+  } catch {
+    return null;
+  }
+}
+
+function formatExpiry(exp: number) {
+  return new Date(exp).toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 function communityToEntry(item: QueueSubmissionItem): CompanySearchEntry {
+  const status = item.queueStatus ?? "awaiting_review";
   return {
     slug: item.slug,
     name: item.name,
-    verificationStatus: "unverified",
+    verificationStatus: queueStatusToSearchStatus(status),
     category: "unknown",
     note: item.note,
     tagline: item.note,
@@ -120,6 +145,10 @@ export function PipelineQueue() {
   const staticEntries = useMemo(() => buildPipelineEntries(), []);
   const [communityEntries, setCommunityEntries] = useState<CompanySearchEntry[]>([]);
   const [mailBannerCompany, setMailBannerCompany] = useState<string | null>(null);
+  const [moderatorToken, setModeratorToken] = useState<string>("");
+  const [moderatorTokenExp, setModeratorTokenExp] = useState<number | null>(null);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -177,6 +206,7 @@ export function PipelineQueue() {
                 slug,
                 name: json.companyName!,
                 requestType: "add",
+                queueStatus: "awaiting_review",
                 note: "Added from admin email approval",
                 submittedAt: new Date().toISOString(),
               }),
@@ -195,6 +225,63 @@ export function PipelineQueue() {
       active = false;
     };
   }, [searchParams]);
+
+  // No-login moderation token from admin email link.
+  useEffect(() => {
+    const token = searchParams.get("moderate")?.trim();
+    if (token) {
+      setModeratorToken(token);
+      setModeratorTokenExp(decodeModerationTokenExpiry(token));
+    }
+  }, [searchParams]);
+
+  async function updateQueueStatus(entry: CompanySearchEntry, next: QueueStatusUpdate) {
+    if (!entry.submissionId || !moderatorToken || updatingId) return;
+    setUpdateError(null);
+    setUpdatingId(entry.submissionId);
+
+    try {
+      const res = await fetch(`${getQueueApiUrl()}/status`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-moderator-token": moderatorToken,
+        },
+        body: JSON.stringify({
+          id: entry.submissionId,
+          status: next,
+          companyName: entry.name,
+          companySlug: entry.slug,
+        }),
+      });
+
+      const json = (await res.json()) as { ok?: boolean; error?: string };
+      if (!res.ok || !json.ok) {
+        setUpdateError(json.error || "Unable to update queue status.");
+        return;
+      }
+
+      setCommunityEntries((prev) => {
+        if (next === "verified" || next === "rejected") {
+          return prev.filter((item) => item.submissionId !== entry.submissionId);
+        }
+
+        const nextStatus = next === "in_progress" ? "in_progress" : "unverified";
+        return prev.map((item) =>
+          item.submissionId === entry.submissionId
+            ? {
+                ...item,
+                verificationStatus: nextStatus,
+              }
+            : item,
+        );
+      });
+    } catch {
+      setUpdateError("Unable to update queue status.");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
 
   const allEntries = useMemo(
     () => [...staticEntries, ...communityEntries].sort((a, b) => a.name.localeCompare(b.name)),
@@ -282,6 +369,17 @@ export function PipelineQueue() {
           )}{" "}
           Filter, browse, or click a row to see status and suggest official sources.
         </p>
+        {moderatorToken && (
+          <p className="pipeline-results-bar" role="status" style={{ marginTop: 8 }}>
+            Moderation mode active (secure email link)
+            {moderatorTokenExp ? ` · token expires ${formatExpiry(moderatorTokenExp)}` : ""}
+          </p>
+        )}
+        {updateError && (
+          <p className="pipeline-results-bar" role="alert" style={{ marginTop: 8 }}>
+            {updateError}
+          </p>
+        )}
       </div>
 
       <div className="pipeline-stat-row" aria-label="Catalog counts">
@@ -416,6 +514,42 @@ export function PipelineQueue() {
                         ? "Details"
                         : "View"}
                     </Link>
+                    {moderatorToken && entry.communityRequest && entry.submissionId && (
+                      <div style={{ display: "flex", gap: 6, marginTop: 8, flexWrap: "wrap" }}>
+                        <button
+                          type="button"
+                          className="catalog-pipeline-action"
+                          disabled={updatingId === entry.submissionId}
+                          onClick={() => updateQueueStatus(entry, "awaiting_review")}
+                        >
+                          Awaiting
+                        </button>
+                        <button
+                          type="button"
+                          className="catalog-pipeline-action"
+                          disabled={updatingId === entry.submissionId}
+                          onClick={() => updateQueueStatus(entry, "in_progress")}
+                        >
+                          In progress
+                        </button>
+                        <button
+                          type="button"
+                          className="catalog-pipeline-action"
+                          disabled={updatingId === entry.submissionId}
+                          onClick={() => updateQueueStatus(entry, "verified")}
+                        >
+                          Verify
+                        </button>
+                        <button
+                          type="button"
+                          className="catalog-pipeline-action"
+                          disabled={updatingId === entry.submissionId}
+                          onClick={() => updateQueueStatus(entry, "rejected")}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))

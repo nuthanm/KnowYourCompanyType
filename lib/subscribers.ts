@@ -19,3 +19,16 @@ export async function saveSubscriber(input: { id: string; email: string; name?: 
   `;
   return { stored: true as const };
 }
+
+export async function listSubscribers(limit = 300) {
+  const db = getSql();
+  if (!db) return [] as Array<{ email: string; name: string | null }>;
+  const safeLimit = Math.min(Math.max(limit, 1), 2000);
+  const rows = await db<Array<{ email: string; name: string | null }>>`
+    SELECT email, name
+    FROM catalog_subscribers
+    ORDER BY created_at DESC
+    LIMIT ${safeLimit}
+  `;
+  return rows;
+}
