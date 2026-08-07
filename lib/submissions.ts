@@ -254,7 +254,7 @@ export async function listQueueSubmissions() {
   const jsonItems = await readPendingQueueJson();
 
   const seen = new Set<string>();
-  const merged = [...jsonItems, ...dbItems].filter((item) => {
+  const merged = [...dbItems, ...jsonItems].filter((item) => {
     const itemKeys = getCompanyAliasKeys(item.name, item.slug, item.website);
     const matchesCatalog = [...itemKeys].some((key) => CATALOG_COMPANY_KEYS.has(key));
 
@@ -292,22 +292,49 @@ export async function updateSubmissionQueueStatus(input: {
       company_name: string;
       company_slug: string | null;
       status: string;
+      previous_status: string;
     }>
   >`
-    UPDATE company_submissions
+    WITH target AS (
+      SELECT id, company_name, company_slug, status
+      FROM company_submissions
+      WHERE id = ${input.id}
+      LIMIT 1
+    )
+    UPDATE company_submissions AS submissions
     SET status = ${input.status}, updated_at = NOW()
-    WHERE id = ${input.id}
-    RETURNING id, company_name, company_slug, status
+    FROM target
+    WHERE submissions.id = target.id
+    RETURNING submissions.id, submissions.company_name, submissions.company_slug, submissions.status, target.status AS previous_status
   `;
 
   const row = rows[0];
   if (!row) return { updated: false as const, reason: "not-found" as const };
 
-  if (input.status !== "rejected") {
+  const nextStatus = mapDbSubmissionStatus(row.status);
+  const previousStatus = mapDbSubmissionStatus(row.previous_status);
+  const changed = previousStatus !== nextStatus;
+  const resolvedSlug = input.companySlug?.trim() || row.company_slug || undefined;
+
+  const { removePendingQueueJsonEntries, setPendingQueueJsonStatus } = await import(
+    "@/lib/pending-queue-store"
+  );
+
+  if (nextStatus === "verified" || nextStatus === "rejected") {
+    await removePendingQueueJsonEntries({ id: row.id, slug: resolvedSlug });
+  } else {
+    await setPendingQueueJsonStatus({
+      id: row.id,
+      slug: resolvedSlug,
+      queueStatus: nextStatus,
+    });
+  }
+
+  if (changed && nextStatus !== "rejected") {
     await notifySubscribersOnQueueStageChange({
       companyName: input.companyName?.trim() || row.company_name,
-      companySlug: input.companySlug?.trim() || row.company_slug || undefined,
-      stage: input.status,
+      companySlug: resolvedSlug,
+      stage: nextStatus,
     });
   }
 
@@ -316,7 +343,9 @@ export async function updateSubmissionQueueStatus(input: {
     id: row.id,
     companyName: row.company_name,
     companySlug: row.company_slug,
-    status: mapDbSubmissionStatus(row.status),
+    status: nextStatus,
+    previousStatus,
+    changed,
   };
 }
 

@@ -1,6 +1,9 @@
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import postgres from "postgres";
+import { loadScriptEnv } from "./load-env.mjs";
+
+await loadScriptEnv();
 
 const args = new Set(process.argv.slice(2));
 const required =

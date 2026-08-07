@@ -1,6 +1,9 @@
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import postgres from "postgres";
+import { loadScriptEnv } from "./load-env.mjs";
+
+await loadScriptEnv();
 
 const dbUrl = process.env.DATABASE_URL?.trim();
 if (!dbUrl || dbUrl.includes("replace") || dbUrl.includes("user:password")) {

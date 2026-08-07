@@ -59,3 +59,49 @@ export async function upsertPendingQueueJson(item: QueueSubmissionItem) {
   const result = await upstashCommand(["SET", PENDING_QUEUE_KEY, JSON.stringify(next)]);
   return { stored: result === "OK" };
 }
+
+export async function setPendingQueueJsonStatus(input: {
+  id?: string;
+  slug?: string;
+  queueStatus: QueueSubmissionItem["queueStatus"];
+}) {
+  if (!hasUpstash()) return { stored: false as const, changed: false as const };
+
+  const id = input.id?.trim();
+  const slug = input.slug?.trim();
+  if (!id && !slug) return { stored: false as const, changed: false as const };
+
+  const existing = await readPendingQueueJson();
+  let changed = false;
+  const next = existing.map((item) => {
+    const match = (id && item.id === id) || (slug && item.slug === slug);
+    if (!match || item.queueStatus === input.queueStatus) return item;
+    changed = true;
+    return { ...item, queueStatus: input.queueStatus };
+  });
+
+  if (!changed) return { stored: true as const, changed: false as const };
+  const result = await upstashCommand(["SET", PENDING_QUEUE_KEY, JSON.stringify(next)]);
+  return { stored: result === "OK", changed: true as const };
+}
+
+export async function removePendingQueueJsonEntries(input: { id?: string; slug?: string }) {
+  if (!hasUpstash()) return { stored: false as const, removed: 0 };
+
+  const id = input.id?.trim();
+  const slug = input.slug?.trim();
+  if (!id && !slug) return { stored: false as const, removed: 0 };
+
+  const existing = await readPendingQueueJson();
+  const next = existing.filter((item) => {
+    const byId = id ? item.id === id : false;
+    const bySlug = slug ? item.slug === slug : false;
+    return !byId && !bySlug;
+  });
+
+  const removed = existing.length - next.length;
+  if (removed <= 0) return { stored: true as const, removed: 0 };
+
+  const result = await upstashCommand(["SET", PENDING_QUEUE_KEY, JSON.stringify(next)]);
+  return { stored: result === "OK", removed };
+}

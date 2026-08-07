@@ -1,7 +1,10 @@
-import { readFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import nodemailer from "nodemailer";
 import postgres from "postgres";
+import { loadScriptEnv } from "./load-env.mjs";
+
+await loadScriptEnv();
 
 const dbUrl = process.env.DATABASE_URL?.trim();
 if (!dbUrl || dbUrl.includes("replace") || dbUrl.includes("user:password")) {
@@ -10,6 +13,7 @@ if (!dbUrl || dbUrl.includes("replace") || dbUrl.includes("user:password")) {
 }
 
 const catalogPath = resolve(process.cwd(), "data", "companies.json");
+const pipelinePath = resolve(process.cwd(), "data", "pipeline.json");
 
 function normalizeStatus(value) {
   if (value === "verified" || value === "in_progress" || value === "unverified") return value;
@@ -53,6 +57,47 @@ const verifiedSlugs = companies
   .filter((company) => normalizeStatus(company.verificationStatus) === "verified")
   .map((company) => String(company.slug || "").trim())
   .filter(Boolean);
+
+const allCatalogSlugs = new Set(
+  companies
+    .map((company) => String(company.slug || "").trim())
+    .filter(Boolean),
+);
+
+async function prunePipelineJson() {
+  try {
+    const rawPipeline = await readFile(pipelinePath, "utf8");
+    const parsed = JSON.parse(rawPipeline);
+    const inProgress = Array.isArray(parsed?.inProgress) ? parsed.inProgress : [];
+    const unverified = Array.isArray(parsed?.unverified) ? parsed.unverified : [];
+
+    const nextInProgress = inProgress.filter((item) => {
+      const slug = String(item?.slug || "").trim();
+      return !slug || !allCatalogSlugs.has(slug);
+    });
+    const nextUnverified = unverified.filter((item) => {
+      const slug = String(item?.slug || "").trim();
+      return !slug || !allCatalogSlugs.has(slug);
+    });
+
+    const changed =
+      nextInProgress.length !== inProgress.length || nextUnverified.length !== unverified.length;
+
+    if (!changed) return { removed: 0 };
+
+    const next = {
+      ...parsed,
+      inProgress: nextInProgress,
+      unverified: nextUnverified,
+    };
+
+    await writeFile(pipelinePath, `${JSON.stringify(next, null, 2)}\n`, "utf8");
+    const removed = inProgress.length + unverified.length - nextInProgress.length - nextUnverified.length;
+    return { removed };
+  } catch {
+    return { removed: 0 };
+  }
+}
 
 const sql = postgres(dbUrl, { max: 1, prepare: false });
 
@@ -157,6 +202,10 @@ try {
 
   console.log(`Synced ${companies.length} companies to company_profiles.`);
   console.log(`Marked submission rows verified for ${verifiedSlugs.length} verified slugs.`);
+  const pruned = await prunePipelineJson();
+  if (pruned.removed > 0) {
+    console.log(`Removed ${pruned.removed} synced entries from data/pipeline.json.`);
+  }
 } finally {
   await sql.end({ timeout: 5 });
 }
