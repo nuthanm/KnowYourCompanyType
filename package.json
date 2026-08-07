@@ -11,6 +11,7 @@
     "catalog:pull-db": "node scripts/catalog-pull-db.mjs",
     "catalog:pull-db:required": "node scripts/catalog-pull-db.mjs --required",
     "companies:sync-db": "node scripts/sync-companies-db.mjs",
+    "public:sanitize-data": "node scripts/sanitize-public-data.mjs",
     "start": "next start",
     "lint": "eslint ."
   },

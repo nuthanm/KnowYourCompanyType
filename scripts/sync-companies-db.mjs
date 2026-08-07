@@ -41,6 +41,12 @@ function getTransport() {
   });
 }
 
+function isValidEmail(value) {
+  if (!value) return false;
+  const email = String(value).trim();
+  return /.+@.+\..+/.test(email);
+}
+
 const raw = await readFile(catalogPath, "utf8");
 const catalog = JSON.parse(raw);
 if (!catalog || !Array.isArray(catalog.companies)) {
@@ -145,13 +151,15 @@ try {
         SET status = 'verified', updated_at = NOW()
         WHERE company_slug = ANY(${verifiedSlugs})
           AND status IN ('awaiting_review', 'in_progress', 'pending', 'reviewed', 'accepted')
-        RETURNING company_name, company_slug
+        RETURNING company_name, company_slug, submitter_name, submitter_email
       `;
 
       for (const row of updated) {
         newlyVerified.push({
           companyName: String(row.company_name || "").trim(),
           companySlug: String(row.company_slug || "").trim(),
+          submitterName: String(row.submitter_name || "").trim(),
+          submitterEmail: String(row.submitter_email || "").trim(),
         });
       }
     }
@@ -168,6 +176,7 @@ try {
     if (subscribers.length > 0) {
       const transport = getTransport();
       if (transport) {
+        const requesterSent = new Set();
         for (const company of newlyVerified) {
           const profilePath = company.companySlug ? `/companies/${company.companySlug}` : "/coming-soon";
           const site = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -193,6 +202,31 @@ try {
               });
             } catch {
               // Keep sync successful if individual email delivery fails.
+            }
+          }
+
+          const requesterEmail = String(company.submitterEmail || "").trim().toLowerCase();
+          const requesterName = company.submitterName || "there";
+          const requesterDedupKey = `${requesterEmail}|${company.companySlug || company.companyName}`;
+          if (isValidEmail(requesterEmail) && !requesterSent.has(requesterDedupKey)) {
+            requesterSent.add(requesterDedupKey);
+            try {
+              await transport.sendMail({
+                from: process.env.MAIL_FROM || process.env.SMTP_USER,
+                to: requesterEmail,
+                subject: `[Know Your IT Hub] Your request for ${company.companyName} is now Verified`,
+                text: [
+                  `Hi ${requesterName},`,
+                  "",
+                  `Great news: your request for ${company.companyName} is now verified in the catalog.`,
+                  "",
+                  `Track status: ${site}/coming-soon`,
+                  `View profile: ${site}${profilePath}`,
+                ].join("\n"),
+                html: `<p>Hi ${requesterName},</p><p>Great news: your request for <strong>${company.companyName}</strong> is now <strong>Verified</strong> in the catalog.</p><p><a href="${site}/coming-soon">Open review queue</a></p><p><a href="${site}${profilePath}">View profile</a></p>`,
+              });
+            } catch {
+              // Keep sync successful if requester notification fails.
             }
           }
         }

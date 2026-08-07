@@ -1,12 +1,18 @@
 name: Companies DB Sync
 
+permissions:
+  contents: write
+
 on:
   pull_request:
     paths:
       - data/companies.json
+      - data/companies.example.json
       - scripts/sync-companies-db.mjs
+      - scripts/sanitize-public-data.mjs
       - db/companies.sql
       - db/submissions.sql
+      - package.json
   workflow_dispatch:
 
 jobs:
@@ -29,3 +35,19 @@ jobs:
       - run: npm ci
       - name: Sync companies into DB and reconcile submission statuses
         run: npm run companies:sync-db
+      - name: Sanitize public JSON data files
+        run: npm run public:sanitize-data
+      - name: Commit sanitized JSON files back to PR branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          if git diff --quiet -- data/companies.json data/pipeline.json data/drafts data/enrichments; then
+            echo "No sanitization changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A data
+          git add -f data/companies.json
+          git commit -m "chore: sanitize public JSON after DB sync"
+          git push
